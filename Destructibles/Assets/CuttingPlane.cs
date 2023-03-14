@@ -17,7 +17,9 @@ public class CuttingPlane
 
     public CuttingPlane(Vector3 a, Vector3 b, Vector3 c)
     {
+
         normal = Vector3.Cross(b - a, c - a);  //нормаль относительно а
+
         w = Vector3.Dot(normal, a); //сила вектора
 
     }
@@ -29,7 +31,6 @@ public class CuttingPlane
         return normal.magnitude > 0f;
     }
 
-    public override string ToString() => $"{normal} {w}";
 
     public Vertex Mix( Vertex x, Vertex y, float weight)
     {
@@ -107,6 +108,16 @@ public class CuttingPlane
 
                             f.Add(v);
                             b.Add(v);
+                        }
+
+                        if (f.Count >= 3)
+                        {
+                            front.Add(new Polygon(f));//ƒобавл€ем новый полигон из точек спереди полигона
+                        }
+
+                        if (b.Count >= 3)
+                        {
+                            back.Add(new Polygon(b)); //и сзади
                         }
                     }
                 }

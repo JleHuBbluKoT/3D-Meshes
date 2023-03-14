@@ -14,7 +14,20 @@ using System.Collections.Generic;
             //material = mat;
         }
 
-        public void Flip()
+        public Polygon(Vector3 v1, Vector3 v2, Vector3 v3)
+        {
+        List<Vertex> H = new List<Vertex>();
+        H.Add(new Vertex(v1));
+        H.Add(new Vertex(v2));
+        H.Add(new Vertex(v3));
+        vertices = H;
+        plane = new CuttingPlane(vertices[0].position, vertices[1].position, vertices[2].position);
+    }
+
+
+
+
+    public void Flip()
         {
             vertices.Reverse();
             for (int i = 0; i < vertices.Count; i++)
@@ -22,9 +35,32 @@ using System.Collections.Generic;
             plane.Flip();
         }
 
-        public override string ToString()
+    public override string ToString()
+    {
+        string vert = "";
+        foreach (var vertice in this.vertices)
         {
-            return $"[{vertices.Count}] {plane.normal}";
+            vert = vert + vertice.position.ToString();
         }
+        return $"[{vertices.Count}] Vertices: {vert}";
+    }
+
+    public List<Polygon> BreakApart() //Разбивает полигон из более трех точек на треугольные полигончики || Если уже треугольный то просто возвращает себя в списке
+    {
+        List<Polygon> smallPoly = new List<Polygon>();
+
+        for (int i = 2; i < this.vertices.Count; i++)
+        {
+            List<Vertex> H = new List<Vertex>();
+            H.Add(vertices[i - 2]);
+            H.Add(vertices[i - 1]);
+            H.Add(vertices[i - 0]);
+            smallPoly.Add(new Polygon(H));
+        }
+
+        return smallPoly;
+    }
+
+
     }
 

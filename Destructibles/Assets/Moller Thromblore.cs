@@ -11,42 +11,58 @@ public static class MollerThromblore
         Vector3 vertex1 = polygon.vertices[1].position;
         Vector3 vertex2 = polygon.vertices[2].position;
 
-        Vector3 edge1 = new Vector3(); // v1, v0
-        Vector3 edge2 = new Vector3(); // v2, v0
+        Vector3 edge1 = vertex1 - vertex0;
+        Vector3 edge2 = vertex2 - vertex0;
         Vector3 h = new Vector3();
         Vector3 s = new Vector3();
         Vector3 q = new Vector3();
-        double a, f, u, v ;
+        double a, Det, barU, barV ;
 
-        edge1 = vertex1 - vertex0;
-        edge2 = vertex2 - vertex0;
 
-        h = Vector3.Cross(origin, edge2);
-        a = Vector3.Dot(h, origin);
+        h = Vector3.Cross(direction, edge2);
+        a = Vector3.Dot(edge1, h); //скаляр
 
-        // ПАРАЛЛЕЛЕН ТРЕУГОЛЬНИКУ
-        if (a > -epsilon && a < epsilon) { return false; }
-
-        f = 1.0f / a;
+        // ПАРАЛЛЕЛЕН ТРЕУГОЛЬНИКУ - DROP
+        if (a > -epsilon && a < epsilon) { Debug.Log("Параллелен"); return false; }
+        
+        
+        Det = 1.0f / a; 
         s = origin - vertex0;
-        u = f * Vector3.Dot(s, h);
-        if (u < 0.0f || u > 1.0f) { return false;  }
-        // СМЕРТЬ
+        barU = Det * Vector3.Dot(s, h);
+        if (barU < 0.0f || barU > 1.0f) { Debug.Log("Предел 1"); return false; } // Вне треугольника
+
 
 
         q = Vector3.Cross(s, edge1);
-        v = f * Vector3.Dot(direction, q);
-        if (v < 0.0f || u + v > 1.0f)  {  return false; }
-        // СМЕРТЬ
+        barV = Det * Vector3.Dot(direction, q);
+        if (barV < 0.0f || barU + barV > 1.0f) { Debug.Log("Предел 2"); return false; } // Вне треугольника
 
-        double t = f * Vector3.Dot(edge2, q);
 
-        if (t > epsilon) { return true;  } // Луч пересек треугольник
+        double t = Det * Vector3.Dot(edge2, q); // Расстояние от начала луча до плоскости
+
+        Debug.Log(t);
+        if (t > epsilon) {
+            Vector3 result = MixVertex(new Vertex(origin), new Vertex(direction), (float)t  ).position;
+            Debug.Log(result);
+            return true;
+        } // Луч пересек треугольник
         else { return false; } // Линия пересекла треугольник, но луч не пересек
 
 
         
     }
 
+
+    public static Vertex MixVertex(Vertex x, Vertex y, float weight)
+    {
+        float i = 1f - weight;
+        Vertex v = new Vertex();
+        v.position = x.position * i + y.position * weight;
+        v.color = x.color * i + y.color * weight;
+        v.normal = x.normal * i + y.normal * weight;
+        v.tangent = x.tangent * i + y.tangent * weight;
+
+        return v;
+    }
 
 }
