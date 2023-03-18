@@ -17,13 +17,9 @@ public class CuttingPlane
 
     public CuttingPlane(Vector3 a, Vector3 b, Vector3 c)
     {
-
         normal = Vector3.Cross(b - a, c - a);  //нормаль относительно а
-
         w = Vector3.Dot(normal, a); //сила вектора
-
     }
-
 
 
     public bool Valid()
@@ -48,6 +44,7 @@ public class CuttingPlane
 
     public void SplitPolygon(Polygon polygon, List<Polygon> coplanarFront, List<Polygon> coplanarBack, List<Polygon> front, List<Polygon> back)
     {
+        
 
         Type polygonType = 0;
         List<Type> types = new List<Type>();
@@ -64,10 +61,13 @@ public class CuttingPlane
         {
             case Type.SamePlane:
                 {
-                    if (Vector3.Dot(this.normal, polygon.plane.normal) > 0)
+                    if (Vector3.Dot(this.normal, polygon.plane.normal) > 0) {
                         coplanarFront.Add(polygon);
-                    else
+                    }
+                    else {
                         coplanarBack.Add(polygon);
+                    }
+                        
                 }
                 break;
 
@@ -78,51 +78,61 @@ public class CuttingPlane
                 } break;
 
             case Type.Intersects:
-                {
+                { 
                     List<Vertex> f = new List<Vertex>();
                     List<Vertex> b = new List<Vertex>();
 
-                    for (int i = 0; i < polygon.vertices.Count; i++)
-                    {
+                    for (int i = 0; i < polygon.vertices.Count; i++)  {
                         int j = (i + 1) % polygon.vertices.Count;
 
                         Type ti = types[i], tj = types[j];
 
                         Vertex vi = polygon.vertices[i], vj = polygon.vertices[j];
 
-                        if (ti != Type.Back)
-                        {
+
+                        if (ti != Type.Back) {
                             f.Add(vi);
                         }
 
-                        if (ti != Type.Front)
-                        {
+
+                        if (ti != Type.Front)   {
                             b.Add(vi);
                         }
 
                         if ((ti | tj) == Type.Intersects)
                         {
-                            float t = (this.w - Vector3.Dot(this.normal, vi.position)) / Vector3.Dot(this.normal, vj.position - vi.position);
 
+                            float t = (this.w - Vector3.Dot(this.normal, vi.position)) / Vector3.Dot(this.normal, vj.position - vi.position);
                             Vertex v = this.Mix(vi, vj, t);
 
                             f.Add(v);
                             b.Add(v);
                         }
+                    }
 
-                        if (f.Count >= 3)
-                        {
-                            front.Add(new Polygon(f));//ƒобавл€ем новый полигон из точек спереди полигона
-                        }
+                    // —обираем треугольники из точек на разных сторонах плоскости
+                    if (f.Count >= 3)
+                    {
+                        front.Add(new Polygon(f)); //ƒобавл€ем новый полигон из точек спереди полигона
+                    }
 
-                        if (b.Count >= 3)
-                        {
-                            back.Add(new Polygon(b)); //и сзади
-                        }
+                    if (b.Count >= 3)
+                    {
+                        back.Add(new Polygon(b)); //и новый полигон из точек сзади
                     }
                 }
-                break;
+                break;      
         }   // End switch(polygonType)
+
+        for (int i = 0; i < front.Count; i++)
+        {
+            Debug.Log(front[i].ToString());
+        }
+        for (int i = 0; i < back.Count; i++)
+        {
+            Debug.Log(back.Count);
+            
+        }
     }
 
 

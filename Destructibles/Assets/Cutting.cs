@@ -41,55 +41,48 @@ public class Cutting : MonoBehaviour
         Poly1.plane.SplitPolygon(Poly2, newOne, newTwo, newOne, newTwo);
 
 
+
+
+        Debug.Log(newOne.Count);
         for (int i = 0; i < newOne.Count; i++) {
+            Debug.Log(newOne[i].ToString());
             if (newOne[i].vertices.Count > 3) {
-                
-                newOne.AddRange(newOne[i].BreakApart());
+                newOne.AddRange(newOne[i].BreakApart()); // Splits i element into smaller polygons and returns them
                 newOne.RemoveAt(i);
             }
         }
 
+
+        Debug.Log(newTwo.Count);
         for (int i = 0; i < newTwo.Count; i++) {
+            Debug.Log(newTwo[i].ToString());
             if (newTwo[i].vertices.Count > 3)
             {
-
-                newTwo.RemoveAt(i);
                 newTwo.AddRange(newTwo[i].BreakApart());
+                newTwo.RemoveAt(i);
+
             }
         }
 
+        newTwo.AddRange(newOne);
 
 
-        for (int i = 0; i < newOne.Count; i++)
+
+        
+
+
+        
+        foreach (var item in newTwo)
         {
-            Debug.Log(newOne[i].ToString());
+            RenderPoly(item.vertices[0].position, item.vertices[1].position, item.vertices[2].position);
         }
-
-        for (int i = 0; i < newTwo.Count; i++)
-        {
-            Debug.Log(newTwo[i].ToString());
-        }
-
-
-
-
-
 
         //Отрисовка
 
-        GameObject meshA = TheThingie;
-        meshA.transform.position = new Vector3(0, 0, 0);
-        Mesh TriA = new Mesh(); Vector3[] verticesA = new Vector3[] { vertex1, vertex2, vertex3 };
-        TriA.vertices = verticesA; TriA.triangles = new int[] { 0, 1, 2 };
-        meshA.GetComponent<MeshFilter>().mesh = TriA;
-        Instantiate<GameObject>(meshA);
+        RenderPoly(vertex1, vertex2, vertex3);
+        RenderPoly(vertex4, vertex5, vertex6);
 
-        GameObject meshB = TheThingie;
-        meshB.transform.position = new Vector3(0, 0, 0);
-        Mesh TriB = new Mesh(); Vector3[] verticesB = new Vector3[] { vertex4, vertex5, vertex6 };
-        TriB.vertices = verticesB; TriB.triangles = new int[] { 0, 1, 2 };
-        meshB.GetComponent<MeshFilter>().mesh = TriB;
-        Instantiate<GameObject>(meshB);
+
     }
 
     public void Thingy()
@@ -190,9 +183,18 @@ public class Cutting : MonoBehaviour
         return false;
     }
 
-    
 
-
+    public void RenderPoly(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3 )
+    {
+        GameObject meshA = TheThingie;
+        meshA.transform.position = new Vector3(0, 0, 0);
+        Mesh TriA = new Mesh(); Vector3[] verticesA = new Vector3[] { vertex1, vertex2, vertex3 };
+        TriA.vertices = verticesA; TriA.triangles = new int[] { 0, 1, 2 };
+        meshA.GetComponent<MeshFilter>().mesh = TriA;
+        Instantiate<GameObject>(meshA);
+    }
 }
+
+
 
 
