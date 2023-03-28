@@ -6,11 +6,13 @@ public class Cutting : MonoBehaviour
 {
     public GameObject TheThingie;
     public GameObject Pointer;
+    public GameObject GA;
+    public GameObject GB;
     // Start is called before the first frame update
     void Start()
     {
         //Thingy();
-        Moller();
+        First3DCheck();
     }
 
     static float epsilon = 0.00001f;
@@ -18,6 +20,53 @@ public class Cutting : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void First3DCheck()
+    {
+        List<Polygon> GAPolys = new List<Polygon>();
+        List<Polygon> GBPolys = new List<Polygon>();
+
+        List<Polygon> NewPolys = new List<Polygon>();
+
+        int[] GATriangles = GA.GetComponent<MeshFilter>().mesh.triangles;
+        Vector3[] GAVertices = GA.GetComponent<MeshFilter>().mesh.vertices;
+        Vector3 GAposition = GA.transform.position;
+        for (int i = 0; i < GA.GetComponent<MeshFilter>().mesh.triangles.Length / 3; i++)
+        {
+            Vector3 item1 = GAVertices[GATriangles[i * 3 + 0]] + GAposition;
+            Vector3 item2 = GAVertices[GATriangles[i * 3 + 1]] + GAposition;
+            Vector3 item3 = GAVertices[GATriangles[i * 3 + 2]] + GAposition;
+            Debug.Log(item1 + " | " + item2 + " | " + item3);
+            GAPolys.Add(new Polygon(item1, item2, item3));
+        }
+
+        int[] GBTriangles = GB.GetComponent<MeshFilter>().mesh.triangles;
+        Vector3[] GBVertices = GB.GetComponent<MeshFilter>().mesh.vertices;
+        Vector3 GBposition = GB.transform.position;
+        for (int i = 0; i < GB.GetComponent<MeshFilter>().mesh.triangles.Length / 3; i++)
+        {
+            Vector3 item1 = GBVertices[GBTriangles[i * 3 + 0]] + GBposition;
+            Vector3 item2 = GBVertices[GBTriangles[i * 3 + 1]] + GBposition;
+            Vector3 item3 = GBVertices[GBTriangles[i * 3 + 2]] + GBposition;
+            Debug.Log(item1 + " | " + item2 + " | " + item3);
+            GBPolys.Add(new Polygon(item1, item2, item3));
+        }
+        
+        for (int a = 0; a < GAPolys.Count; a++)
+        {
+            for (int b = 0; b < GBPolys.Count; b++)
+            {
+                NewPolys.AddRange(GAPolys[a].plane.SplitPolygonList(GBPolys[b]) );
+              
+            }
+        }
+
+        foreach (var item in NewPolys)
+        {
+            RenderPolyPoly(item);
+        }
+
     }
 
     public void Moller()
@@ -38,9 +87,9 @@ public class Cutting : MonoBehaviour
         List<Polygon> newOne = new List<Polygon>();
         List<Polygon> newTwo = new List<Polygon>();
 
-        Poly1.plane.SplitPolygon(Poly2, newOne, newTwo, newOne, newTwo);
+        //Poly1.plane.SplitPolygon(Poly2, newOne, newTwo, newOne, newTwo);
 
-
+        newOne.AddRange( Poly1.plane.SplitPolygonList(Poly2) );
 
 
         Debug.Log(newOne.Count);
@@ -53,34 +102,19 @@ public class Cutting : MonoBehaviour
         }
 
 
-        Debug.Log(newTwo.Count);
-        for (int i = 0; i < newTwo.Count; i++) {
-            Debug.Log(newTwo[i].ToString());
-            if (newTwo[i].vertices.Count > 3)
-            {
-                newTwo.AddRange(newTwo[i].BreakApart());
-                newTwo.RemoveAt(i);
-
-            }
-        }
-
-        newTwo.AddRange(newOne);
-
-
-
         
 
 
         
-        foreach (var item in newTwo)
+        foreach (var item in newOne)
         {
-            RenderPoly(item.vertices[0].position, item.vertices[1].position, item.vertices[2].position);
+            RenderPolyVec(item.vertices[0].position, item.vertices[1].position, item.vertices[2].position);
         }
 
         //Отрисовка
 
-        RenderPoly(vertex1, vertex2, vertex3);
-        RenderPoly(vertex4, vertex5, vertex6);
+        RenderPolyVec(vertex1, vertex2, vertex3);
+        RenderPolyVec(vertex4, vertex5, vertex6);
 
 
     }
@@ -184,7 +218,7 @@ public class Cutting : MonoBehaviour
     }
 
 
-    public void RenderPoly(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3 )
+    public void RenderPolyVec(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3 )
     {
         GameObject meshA = TheThingie;
         meshA.transform.position = new Vector3(0, 0, 0);
@@ -192,6 +226,17 @@ public class Cutting : MonoBehaviour
         TriA.vertices = verticesA; TriA.triangles = new int[] { 0, 1, 2 };
         meshA.GetComponent<MeshFilter>().mesh = TriA;
         Instantiate<GameObject>(meshA);
+    }
+
+    public void RenderPolyPoly(Polygon Poly /*, Vector3 Precursor*/)
+    {
+        GameObject meshA = TheThingie;
+        meshA.transform.position = new Vector3(0, 0, 0);
+        Mesh TriA = new Mesh(); Vector3[] verticesA = new Vector3[] { Poly.vertices[0].position, Poly.vertices[1].position, Poly.vertices[2].position };
+        TriA.vertices = verticesA; TriA.triangles = new int[] { 0, 1, 2 };
+        meshA.GetComponent<MeshFilter>().mesh = TriA;
+        GameObject thingamagic = Instantiate<GameObject>(meshA);
+        //thingamagic.transform.position = Precursor;
     }
 }
 

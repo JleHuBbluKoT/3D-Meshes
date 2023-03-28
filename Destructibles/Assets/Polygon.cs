@@ -44,17 +44,18 @@ using System.Collections.Generic;
         }
         return $"[{vertices.Count}] Vertices: {vert}";
     }
-
-    public List<Polygon> BreakApart() //Разбивает полигон из более трех точек на треугольные полигончики || Если уже треугольный то просто возвращает себя в списке
+    // Разбивает полигон из более трех точек на треугольные полигончики || Если уже треугольный то просто возвращает себя в списке
+    // Работает с учетом того что полигон является выпуклым
+    public List<Polygon> BreakApart() 
     {
         List<Polygon> smallPoly = new List<Polygon>();
 
         for (int i = 2; i < this.vertices.Count; i++)
         {
             List<Vertex> H = new List<Vertex>();
-            H.Add(vertices[i - 2]);
+            H.Add(vertices[0]);
             H.Add(vertices[i - 1]);
-            H.Add(vertices[i - 0]);
+            H.Add(vertices[i]);
             smallPoly.Add(new Polygon(H));
         }
 
