@@ -12,7 +12,7 @@ public class Cutting : MonoBehaviour
     void Start()
     {
         //Thingy();
-        First3DCheck();
+        BSPTreetest();
     }
 
     static float epsilon = 0.00001f;
@@ -20,6 +20,11 @@ public class Cutting : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void BSPTreetest()
+    {
+        BSPNode testCube = new BSPNode(GA);
     }
 
     public void First3DCheck()

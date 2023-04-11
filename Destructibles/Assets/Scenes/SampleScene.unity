@@ -157,8 +157,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TheThingie: {fileID: 8567373621065140276, guid: 1516529321e3c594a89f1e7616dd7055, type: 3}
   Pointer: {fileID: 6923723513704903704, guid: 5640625b4e262534f9931da03b23326b, type: 3}
-  GA: {fileID: 0}
-  GB: {fileID: 0}
+  GA: {fileID: 929340603}
+  GB: {fileID: 1312925025}
 --- !u!65 &349351961
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -437,7 +437,7 @@ GameObject:
   - component: {fileID: 929340605}
   - component: {fileID: 929340604}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: CubeA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -513,7 +513,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 929340603}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.89, z: 1.81}
+  m_LocalPosition: {x: 0, y: 2.84, z: 1.81}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -691,7 +691,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1312925025}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.53, y: 1.13, z: 2.01}
+  m_LocalPosition: {x: -0.53, y: 3.28, z: 1.57}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

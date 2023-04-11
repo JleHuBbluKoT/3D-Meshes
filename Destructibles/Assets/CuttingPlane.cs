@@ -15,10 +15,14 @@ public class CuttingPlane
         Intersects = 3
     };
 
-    public CuttingPlane(Vector3 a, Vector3 b, Vector3 c)
-    {
-        normal = Vector3.Cross(b - a, c - a);  //нормаль относительно а
-        w = Vector3.Dot(normal, a); //сила вектора
+    public CuttingPlane(Vector3 a, Vector3 b, Vector3 c) {
+        normal = Vector3.Cross(b - a, c - a);
+        w = Vector3.Dot(normal, a);
+    }
+    // јльтернативный способ задани€ плоскости, без точек
+    public CuttingPlane(Vector3 _normal, float _w) {
+        normal = _normal;
+        w = _w;
     }
 
 
@@ -125,6 +129,7 @@ public class CuttingPlane
         }   // End switch(polygonType)
     }
 
+    // ¬озвращает полигоны в списке, дл€ дебага
     public List<Polygon> SplitPolygonList (Polygon polygon)
     {
         List<Polygon> ReturnList = new List<Polygon>();
