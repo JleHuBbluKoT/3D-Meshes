@@ -18,8 +18,8 @@ public class BSPNode
         back = null;
     }
 
-    public BSPNode(GameObject thing )
-    { // Для трансформации модельки сначала в список полигонов, потом в ноду
+    public static List<Polygon> ModelToPolygons(GameObject thing)
+    { // Для трансформации модельки сначала в список полигонов
         List<Polygon> finalPolys = new List<Polygon>();
         int[] GATriangles = thing.GetComponent<MeshFilter>().mesh.triangles;
         Vector3[] GAVertices = thing.GetComponent<MeshFilter>().mesh.vertices;
@@ -32,8 +32,11 @@ public class BSPNode
             //Debug.Log(item1 + " | " + item2 + " | " + item3);
             finalPolys.Add(new Polygon(item1, item2, item3));
         }
-
-        this.Build(finalPolys, "start", 0);
+        return finalPolys;
+    }
+    public BSPNode(GameObject thing )
+    { // Превращает объект в ноду
+        this.Build(ModelToPolygons(thing), "start", 0);
     }
     public BSPNode(List<Polygon> _list)
     {
@@ -53,7 +56,7 @@ public class BSPNode
 
     public void Build(List<Polygon> listPoly, string dir, int depth)
     {
-        Debug.Log(dir + " " + depth);
+        //Debug.Log(dir + " " + depth);
         if (listPoly.Count < 1 || depth > 100)  return; // Проверка на то что это полигон без ошибок и на то что полигон существует
 
         if (Polys == null)
@@ -72,7 +75,7 @@ public class BSPNode
 
         for (int i = 0; i < listPoly.Count; i++)
             this.plane.SplitPolygon(listPoly[i], Polys, Polys, listFront, listBack); // первые два Polys возвращают полигоны в этой же плоскости
-        Debug.Log(listFront.Count + " " + listBack.Count);
+        //Debug.Log(listFront.Count + " " + listBack.Count);
 
         // Все полигоны которые оказались спереди отправляютсяс строить дерево друг об друга
         // Все полигоны которые оказались за этой плоскостью также начнут строить БСП дерево
@@ -88,10 +91,38 @@ public class BSPNode
 
     }
 
-    // Используя БСП дерево этой ноды делить полигоны другого полигона
-    public void SplitPolys(BSPNode otherPoly)
+    // Используя БСП дерево этой ноды делить полигоны другой модельки
+    public List<Polygon> DeleteInsides(List<Polygon> otherPoly, string dir, int depth)
     {
+        Debug.Log(dir + " " + depth);
+        if (this.plane == null || !(this.plane.normal.magnitude > 0)) {
+            return otherPoly;
+        }
 
+        // Разделить чужую модельку от этой ноды
+        List<Polygon> listFront = new List<Polygon>();
+        List<Polygon> listBack = new List<Polygon>();
+        for (int i = 0; i < otherPoly.Count; i++)
+            this.plane.SplitPolygon(otherPoly[i], listFront, listBack, listFront, listBack);
+        // Результ отправить в ноды front и back, рекурсивно вызвав DeleteInsides
+        Debug.Log(listFront.Count + " " + listBack.Count);
+        // Перед
+        if (this.front != null)  {
+            listFront = this.front.DeleteInsides(listFront, "front", depth + 1);
+        }
+
+        // Зад. 
+        if (this.back != null)   {
+            listBack = this.back.DeleteInsides(listBack, "back", depth + 1);
+        }
+        else { // Если у основной модельки нету задней ноды, значит эти полигоны находятся внутри и удалятся. 
+            listBack.Clear();
+        }
+
+        listFront.AddRange(listBack);
+
+        // Вернуть полигоны не находящиеся внутри этого дерева
+        return listFront;
     }
 
 
