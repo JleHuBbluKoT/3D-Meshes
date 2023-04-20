@@ -12,7 +12,7 @@ public class Cutting : MonoBehaviour
     void Start()
     {
         //Thingy();
-        BSPTreetest();
+        MeshReconstructionTest();
     }
 
     static float epsilon = 0.00001f;
@@ -20,6 +20,84 @@ public class Cutting : MonoBehaviour
     void Update()
     {
         
+    }
+    public void MeshReconstructionTest()
+    {
+        GameObject meshA = TheThingie;
+        meshA.transform.position = new Vector3(0, 0, 0);
+
+        meshA.GetComponent<MeshFilter>().mesh = BSPNode.Interface(BSPNode.Operation.Union, GA, GB);
+        meshA = Instantiate<GameObject>(meshA);
+        meshA.transform.position = GA.transform.position;
+
+
+
+    }
+    public void SubtractTest()
+    {
+        
+        List<Polygon> a = BSPNode.ModelToPolygons(GA);
+        List<Polygon> b = BSPNode.ModelToPolygons(GB);
+        List<Polygon> result = BSPNode.Union(a, b);
+
+
+        List<Polygon> NewOnes = new List<Polygon>();
+        for (int i = 0; i < result.Count; i++)
+        {
+            if (result[i].vertices.Count > 3)
+            {
+                List<Polygon> tmp = result[i].BreakApart();
+                result[i] = tmp[0];
+                tmp.RemoveAt(0);
+                NewOnes.AddRange(tmp);
+            }
+        }
+        result.AddRange(NewOnes);
+        foreach (var item in result)
+        {
+            RenderPolyPoly(item);
+        }
+    }
+    public void FlipTest()
+    {
+        List<Polygon> GBPolys = new List<Polygon>();
+        int[] GBTriangles = GB.GetComponent<MeshFilter>().mesh.triangles;
+        Vector3[] GBVertices = GB.GetComponent<MeshFilter>().mesh.vertices;
+        Vector3 GBposition = GB.transform.position;
+        for (int i = 0; i < GB.GetComponent<MeshFilter>().mesh.triangles.Length / 3; i++)
+        {
+            Vector3 item1 = GBVertices[GBTriangles[i * 3 + 0]] + GBposition;
+            Vector3 item2 = GBVertices[GBTriangles[i * 3 + 1]] + GBposition;
+            Vector3 item3 = GBVertices[GBTriangles[i * 3 + 2]] + GBposition;
+            //Debug.Log(item1 + " | " + item2 + " | " + item3);
+            GBPolys.Add(new Polygon(item1, item2, item3));
+        }
+        //Debug.Log(GBPolys.Count);
+
+        BSPNode testCubeA = new BSPNode(GA);
+        testCubeA.Flip();
+        
+        List<Polygon> NewB = testCubeA.DeleteInsides(GBPolys, "start", 0);
+
+        List<Polygon> NewOnes = new List<Polygon>();
+        for (int i = 0; i < NewB.Count; i++)
+        {
+            if (NewB[i].vertices.Count > 3)
+            {
+                List<Polygon> tmp = NewB[i].BreakApart();
+                NewB[i] = tmp[0];
+                tmp.RemoveAt(0);
+                NewOnes.AddRange(tmp);
+            }
+        }
+
+        NewB.AddRange(NewOnes);
+
+
+        foreach (var item in NewB)
+        {
+            RenderPolyPoly(item);
+        }
     }
 
     public void BSPTreetest()

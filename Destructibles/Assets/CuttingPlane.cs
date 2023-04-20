@@ -40,6 +40,10 @@ public class CuttingPlane
         v.color = x.color * i + y.color * weight;
         v.normal = x.normal * i + y.normal * weight;
         v.tangent = x.tangent * i + y.tangent * weight;
+        v.uv0 = x.uv0 * i + y.uv0 * weight;
+        v.uv2 = x.uv2 * i + y.uv2 * weight;
+        v.uv3 = x.uv3 * i + y.uv3 * weight;
+        v.uv4 = x.uv4 * i + y.uv4 * weight;
 
         return v;
     }
@@ -117,12 +121,12 @@ public class CuttingPlane
                     // —обираем треугольники из точек на разных сторонах плоскости
                     if (f.Count >= 3)
                     {
-                        front.Add(new Polygon(f)); //ƒобавл€ем новый полигон из точек спереди полигона
+                        front.Add(new Polygon(f, polygon.material)); //ƒобавл€ем новый полигон из точек спереди полигона
                     }
 
                     if (b.Count >= 3)
                     {
-                        back.Add(new Polygon(b)); //и новый полигон из точек сзади 
+                        back.Add(new Polygon(b, polygon.material)); //и новый полигон из точек сзади 
                     }
                 }
                 break;      
@@ -195,12 +199,12 @@ public class CuttingPlane
                     // —обираем треугольники из точек на разных сторонах плоскости
                     if (f.Count >= 3)
                     {
-                        ReturnList.AddRange(new Polygon(f).BreakApart()); //ƒобавл€ем новый полигон из точек спереди полигона
+                        ReturnList.AddRange(new Polygon(f, polygon.material).BreakApart()); //ƒобавл€ем новый полигон из точек спереди полигона
                     }
 
                     if (b.Count >= 3)
                     {
-                        ReturnList.AddRange(new Polygon(b).BreakApart()); //и новый полигон из точек сзади 
+                        ReturnList.AddRange(new Polygon(b, polygon.material).BreakApart()); //и новый полигон из точек сзади 
                     }
                 }
                 break;

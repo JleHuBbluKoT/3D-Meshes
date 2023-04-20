@@ -1,16 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class BSPNode
 {
     public List<Polygon> Polys;
-
     public BSPNode front;
     public BSPNode back;
-
     public CuttingPlane plane;
-
 
     public BSPNode()
     {
@@ -18,22 +16,6 @@ public class BSPNode
         back = null;
     }
 
-    public static List<Polygon> ModelToPolygons(GameObject thing)
-    { // Для трансформации модельки сначала в список полигонов
-        List<Polygon> finalPolys = new List<Polygon>();
-        int[] GATriangles = thing.GetComponent<MeshFilter>().mesh.triangles;
-        Vector3[] GAVertices = thing.GetComponent<MeshFilter>().mesh.vertices;
-        Vector3 GAposition = thing.transform.position;
-        for (int i = 0; i < thing.GetComponent<MeshFilter>().mesh.triangles.Length / 3; i++)
-        {
-            Vector3 item1 = GAVertices[GATriangles[i * 3 + 0]] + GAposition;
-            Vector3 item2 = GAVertices[GATriangles[i * 3 + 1]] + GAposition;
-            Vector3 item3 = GAVertices[GATriangles[i * 3 + 2]] + GAposition;
-            //Debug.Log(item1 + " | " + item2 + " | " + item3);
-            finalPolys.Add(new Polygon(item1, item2, item3));
-        }
-        return finalPolys;
-    }
     public BSPNode(GameObject thing )
     { // Превращает объект в ноду
         this.Build(ModelToPolygons(thing), "start", 0);
@@ -48,16 +30,17 @@ public class BSPNode
         this.front = front;
         this.back = back;
     }
+
     // Функция, рекурсивно делящая полигоны друг о друга.
     // Каждое деление делит вообще все полигоны на две группы: Спереди и Сзади.
     // Они не пересекаются, а значит между ними проверки делать не нужно. 
     // Смысл в проверках есть только внутри группы, которая также делится на две
     // Итого получается что-то вроде BSP дерева
-
+    // Эту функцию можно использовать также для добавления новых полигонов в уже существующее дерево
     public void Build(List<Polygon> listPoly, string dir, int depth)
     {
         //Debug.Log(dir + " " + depth);
-        if (listPoly.Count < 1 || depth > 100)  return; // Проверка на то что это полигон без ошибок и на то что полигон существует
+        if (listPoly.Count < 1)  return; // Проверка на то что это полигон без ошибок и на то что полигон существует
 
         if (Polys == null)
         {
@@ -92,9 +75,9 @@ public class BSPNode
     }
 
     // Используя БСП дерево этой ноды делить полигоны другой модельки
-    public List<Polygon> DeleteInsides(List<Polygon> otherPoly, string dir, int depth)
+    public List<Polygon> DeleteInsides(List<Polygon> otherPoly, string dir = "start", int depth = 0)
     {
-        Debug.Log(dir + " " + depth);
+        //Debug.Log(dir + " " + depth);
         if (this.plane == null || !(this.plane.normal.magnitude > 0)) {
             return otherPoly;
         }
@@ -105,7 +88,7 @@ public class BSPNode
         for (int i = 0; i < otherPoly.Count; i++)
             this.plane.SplitPolygon(otherPoly[i], listFront, listBack, listFront, listBack);
         // Результ отправить в ноды front и back, рекурсивно вызвав DeleteInsides
-        Debug.Log(listFront.Count + " " + listBack.Count);
+        //Debug.Log(listFront.Count + " " + listBack.Count);
         // Перед
         if (this.front != null)  {
             listFront = this.front.DeleteInsides(listFront, "front", depth + 1);
@@ -126,8 +109,221 @@ public class BSPNode
     }
 
 
+    // Рекурсивно переворачивает все полигоны
+    // Flip() в комбинации с DeletInsides() позволит мне удалять все полигоны ВНЕ модельки, что нужно для некоторых операций
+    public void Flip()
+    {
+        //foreach (var poly in this.Polys)   {  poly.Flip(); }
+        this.plane.Flip();
+
+        if (this.front != null)
+            this.front.Flip();
+        if (this.back != null)
+            this.back.Flip();
+
+        BSPNode tmp = this.back;
+        this.back = this.front;
+        this.front = tmp;
+    }
+
+    public List<Polygon> ToPolygons()
+    {
+        List<Polygon> ret = this.Polys;
+
+        if (this.front != null)
+            ret.AddRange(this.front.ToPolygons());
+        if (this.back != null)
+            ret.AddRange(this.back.ToPolygons());
+        return ret;
+    }
+
+    public BSPNode CopyNode()
+    {
+        BSPNode copy = new BSPNode(this.Polys, this.plane, this.front, this.back);
+        return copy;
+    }
+
+    public enum Operation {
+        Union,
+        Substract,
+        Intersect,
+    };
+    public static Mesh Interface(Operation operation, GameObject A, GameObject B)
+    {
+        List<Polygon> tmp = new List<Polygon>();
+        switch (operation){
+            case Operation.Union:
+                tmp = Union(ModelToPolygons(A), ModelToPolygons(B)); break;
+            case Operation.Substract:
+                tmp = Substract(ModelToPolygons(A), ModelToPolygons(B)); break;
+            case Operation.Intersect:
+                tmp = Intersect(ModelToPolygons(A), ModelToPolygons(B)); break;
+            default:
+                break;
+        }
+
+        Vector3 origin = A.transform.position;
+
+        return ReturnMesh(tmp, origin);
+    }
+
+    public static List<Polygon> Union(List<Polygon> polyA, List<Polygon> polyB)
+    {
+        BSPNode a = new BSPNode(polyA);
+        BSPNode b = new BSPNode(polyB);
+
+        List<Polygon> Half1 =  a.DeleteInsides(polyB);
+        List<Polygon> Half2 = b.DeleteInsides(polyA);
+
+        Half1.AddRange(Half2);
+
+        return Half1;
+    }
+
+    public static List<Polygon> Substract(List<Polygon> polyA, List<Polygon> polyB)
+    {
+        BSPNode a = new BSPNode(polyA);
+        BSPNode b = new BSPNode(polyB);
+
+        List<Polygon> Half1 = b.DeleteInsides(polyA);
+
+        a.Flip();
+
+        List<Polygon> Half2 = a.DeleteInsides(polyB);
+
+        foreach (var poly in Half2) {  poly.Flip();  }
+
+        Half1.AddRange(Half2);
+
+        return Half1;
+    }
+
+    public static List<Polygon> Intersect(List<Polygon> polyA, List<Polygon> polyB)
+    {
+        BSPNode a = new BSPNode(polyA);
+        BSPNode b = new BSPNode(polyB);
+
+        b.Flip();
+        List<Polygon> Half1 = b.DeleteInsides(polyA);
+
+
+        a.Flip();
+        List<Polygon> Half2 = a.DeleteInsides(polyB);
+
+
+        Half1.AddRange(Half2);
+
+        return Half1;
+    }
+
+
+    public static Mesh ReturnMesh(List<Polygon> polys, Vector3 origin)
+    {
+        Mesh TriA = new Mesh();
+        List<Vector3> HashSet = new List<Vector3>();
+        List<int> triangles = new List<int>();
+
+        List<Polygon> NewOnes = new List<Polygon>();
+        for (int i = 0; i < polys.Count; i++)
+        {
+            if (polys[i].vertices.Count > 3)
+            {
+                List<Polygon> tmp = polys[i].BreakApart();
+                polys[i] = tmp[0];
+                tmp.RemoveAt(0);
+                NewOnes.AddRange(tmp);
+            }
+        }
+        polys.AddRange(NewOnes);
+// Vetices ===============================================================================
+        List<Vertex> notUnique = new List<Vertex>();
+        foreach (var poly in polys)
+        {
+            notUnique.AddRange(poly.vertices);
+        }
+        List<Vertex> UniqueVertices = notUnique.Distinct().ToList();
+        List<Vector3> vectorVertice = new List<Vector3>();
+        foreach (var vertex in UniqueVertices)
+        {
+            vectorVertice.Add(vertex.position);
+        }
+        //Debug.Log(notUnique.Count + " " + UniqueVertices.Count);
+// Triangles ===============================================================================
+        foreach (var poly in polys)
+        {
+            //string b = "";
+            for (int i = 0; i < poly.vertices.Count; i++)
+            {
+                int a = UniqueVertices.IndexOf(poly.vertices[i]);
+                //b = b + " " + a;
+                triangles.Add(a);
+            }
+            //Debug.Log(b);
+        }
+
+        for (int i = 0; i < vectorVertice.Count; i++)
+        {
+            vectorVertice[i] -= origin;
+        } 
+
+        TriA.vertices = vectorVertice.ToArray();
+        TriA.triangles = triangles.ToArray();
+        
+        return TriA;
+    }
+
+    public static Vertex[] GetVertices(Mesh mesh, Vector3 origin)
+    {
+        int vcount = mesh.vertices.Count();
+        Vector3[] positions = mesh.vertices;
+        Color[] colors = mesh.colors;
+        Vector3[] normals = mesh.normals;
+        Vector4[] tangents = mesh.tangents;
+        Vector2[] uv0s = mesh.uv;
+        Vector2[] uv2s = mesh.uv2;
+        List<Vector4> uv3s = new List<Vector4>();
+        List<Vector4> uv4s = new List<Vector4>();
+        mesh.GetUVs(2, uv3s);
+        mesh.GetUVs(3, uv4s);
+/*Debug.Log(positions.Length);Debug.Log(colors.Length);Debug.Log(normals.Length);Debug.Log(tangents.Length);Debug.Log(uv0s.Length);Debug.Log(uv2s.Length);Debug.Log(uv3s.Count);Debug.Log(uv4s.Count);*/
+        Vertex[] v = new Vertex[vcount];
+
+        for (int i = 0; i < v.Length; i++)
+        {
+            if (positions.Length== vcount)  v[i].position = positions[i] + origin;
+            if (colors.Length   == vcount)  v[i].color    = colors[i];
+            if (normals.Length  == vcount)  v[i].normal   = normals[i];
+            if (tangents.Length == vcount)  v[i].tangent  = tangents[i];
+            if (uv0s.Length     == vcount)  v[i].uv0      = uv0s[i];
+            if (uv2s.Length     == vcount)  v[i].uv2      = uv2s[i];
+            if (uv3s.Count      == vcount)  v[i].uv3      = uv3s[i];
+            if (uv4s.Count      == vcount)  v[i].uv4      = uv4s[i];
+        }
+
+        return v;
+    }
+
+    public static List<Polygon> ModelToPolygons(GameObject thing)
+    { // Для трансформации модельки сначала в список полигонов
+        List<Polygon> finalPolys = new List<Polygon>();
+        int[] GATriangles = thing.GetComponent<MeshFilter>().mesh.triangles;
+
+        Vertex[] vertices = GetVertices(thing.GetComponent<MeshFilter>().mesh, thing.transform.position);
+
+        Material[] Materials = thing.GetComponent<MeshRenderer>().sharedMaterials;
+        Vector3 GAposition = thing.transform.position;
+
+        //Debug.Log( vertices.Length);
+        for (int i = 0; i < thing.GetComponent<MeshFilter>().mesh.triangles.Length / 3; i++)
+        {
+            finalPolys.Add(new Polygon(vertices[ GATriangles[i * 3 + 0]], vertices[GATriangles[i * 3 + 1]], vertices[GATriangles[i * 3 + 2]]));
+        }
+        return finalPolys;
+    }
 
 }
+
+
 
 
 // Сначала я должен построить БСП дерево для модельки 1

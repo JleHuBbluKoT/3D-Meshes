@@ -5,13 +5,13 @@ using System.Collections.Generic;
     {
         public List<Vertex> vertices;
         public CuttingPlane plane;
-        //public Material material;
+        public Material material;
 
-        public Polygon(List<Vertex> list /* , Material mat*/)
+        public Polygon(List<Vertex> list, Material mat)
         {
             vertices = list;
             plane = new CuttingPlane(list[0].position, list[1].position, list[2].position);
-            //material = mat;
+            material = mat;
         }
 
         public Polygon(Vector3 v1, Vector3 v2, Vector3 v3)
@@ -22,12 +22,20 @@ using System.Collections.Generic;
         H.Add(new Vertex(v3));
         vertices = H;
         plane = new CuttingPlane(vertices[0].position, vertices[1].position, vertices[2].position);
-    }
+        }
+
+        public Polygon(Vertex v1, Vertex v2, Vertex v3)
+        {
+            List<Vertex> H = new List<Vertex>();
+            H.Add(v1);
+            H.Add(v2);
+            H.Add(v3);
+            vertices = H;
+            plane = new CuttingPlane(v1.position, v2.position, v3.position);
+        }
 
 
-
-
-    public void Flip()
+        public void Flip()
         {
             vertices.Reverse();
             for (int i = 0; i < vertices.Count; i++)
@@ -56,7 +64,7 @@ using System.Collections.Generic;
             H.Add(vertices[0]);
             H.Add(vertices[i - 1]);
             H.Add(vertices[i]);
-            smallPoly.Add(new Polygon(H));
+            smallPoly.Add(new Polygon(H, this.material));
         }
 
         return smallPoly;
