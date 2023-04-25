@@ -26,8 +26,10 @@ public class Cutting : MonoBehaviour
         GameObject meshA = TheThingie;
         meshA.transform.position = new Vector3(0, 0, 0);
 
-        meshA.GetComponent<MeshFilter>().mesh = BSPNode.Interface(BSPNode.Operation.Union, GA, GB);
+
         meshA = Instantiate<GameObject>(meshA);
+        meshA.GetComponent<MeshFilter>().mesh = BSPNode.Interface(BSPNode.Operation.Substract, GA, GB, meshA);
+        
         meshA.transform.position = GA.transform.position;
 
 

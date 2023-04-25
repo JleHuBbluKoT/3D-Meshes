@@ -29,7 +29,14 @@ public struct Vertex {
         uv4 = Vector4.zero;
 
     }
+
+    public override string ToString()
+    {
+        return $"XYZ: [{this.position}] Color: {this.color} Normal {normal} tangent {tangent}";
     }
+
+
+}
 
 
 

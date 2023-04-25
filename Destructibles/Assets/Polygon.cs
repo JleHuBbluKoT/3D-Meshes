@@ -24,7 +24,7 @@ using System.Collections.Generic;
         plane = new CuttingPlane(vertices[0].position, vertices[1].position, vertices[2].position);
         }
 
-        public Polygon(Vertex v1, Vertex v2, Vertex v3)
+        public Polygon(Vertex v1, Vertex v2, Vertex v3, Material mat = null)
         {
             List<Vertex> H = new List<Vertex>();
             H.Add(v1);
@@ -32,6 +32,7 @@ using System.Collections.Generic;
             H.Add(v3);
             vertices = H;
             plane = new CuttingPlane(v1.position, v2.position, v3.position);
+            material = mat;
         }
 
 

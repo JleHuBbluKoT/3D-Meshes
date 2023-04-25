@@ -10,6 +10,7 @@ public class BSPNode
     public BSPNode back;
     public CuttingPlane plane;
 
+
     public BSPNode()
     {
         front = null;
@@ -148,7 +149,7 @@ public class BSPNode
         Substract,
         Intersect,
     };
-    public static Mesh Interface(Operation operation, GameObject A, GameObject B)
+    public static Mesh Interface(Operation operation, GameObject A, GameObject B, GameObject Return)
     {
         List<Polygon> tmp = new List<Polygon>();
         switch (operation){
@@ -164,7 +165,7 @@ public class BSPNode
 
         Vector3 origin = A.transform.position;
 
-        return ReturnMesh(tmp, origin);
+        return ReturnMesh(tmp, origin, Return);
     }
 
     public static List<Polygon> Union(List<Polygon> polyA, List<Polygon> polyB)
@@ -217,7 +218,7 @@ public class BSPNode
     }
 
 
-    public static Mesh ReturnMesh(List<Polygon> polys, Vector3 origin)
+    public static Mesh ReturnMesh(List<Polygon> polys, Vector3 origin, GameObject newObject)
     {
         Mesh TriA = new Mesh();
         List<Vector3> HashSet = new List<Vector3>();
@@ -234,6 +235,7 @@ public class BSPNode
                 NewOnes.AddRange(tmp);
             }
         }
+
         polys.AddRange(NewOnes);
 // Vetices ===============================================================================
         List<Vertex> notUnique = new List<Vertex>();
@@ -241,36 +243,70 @@ public class BSPNode
         {
             notUnique.AddRange(poly.vertices);
         }
-        List<Vertex> UniqueVertices = notUnique.Distinct().ToList();
-        List<Vector3> vectorVertice = new List<Vector3>();
+
+        List<Vertex>  UniqueVertices =  notUnique.Distinct().ToList();
+        List<Vector3> vectorVertice =   new List<Vector3>();
+        List<Color>   color =           new List<Color>();
+        List<Vector3> normal =          new List<Vector3>();
+        List<Vector4> tangent =         new List<Vector4>();
+        List<Vector2> uv0 =             new List<Vector2>();
+        List<Vector2> uv2 =             new List<Vector2>();
+        List<Vector4> uv3 =             new List<Vector4>();
+        List<Vector4> uv4 =             new List<Vector4>();
+
         foreach (var vertex in UniqueVertices)
         {
-            vectorVertice.Add(vertex.position);
+            vectorVertice.Add(vertex.position - origin);
+            color.Add(vertex.color);
+            normal.Add(vertex.normal);
+            tangent.Add(vertex.tangent);
+            uv0.Add(vertex.uv0);
+            uv2.Add(vertex.uv2);
+            uv3.Add(vertex.uv3);
+            uv4.Add(vertex.uv4);
         }
-        //Debug.Log(notUnique.Count + " " + UniqueVertices.Count);
-// Triangles ===============================================================================
-        foreach (var poly in polys)
-        {
-            //string b = "";
-            for (int i = 0; i < poly.vertices.Count; i++)
-            {
-                int a = UniqueVertices.IndexOf(poly.vertices[i]);
-                //b = b + " " + a;
-                triangles.Add(a);
-            }
-            //Debug.Log(b);
-        }
-
-        for (int i = 0; i < vectorVertice.Count; i++)
-        {
-            vectorVertice[i] -= origin;
-        } 
 
         TriA.vertices = vectorVertice.ToArray();
-        TriA.triangles = triangles.ToArray();
+        TriA.colors = color.ToArray();
+        TriA.normals = normal.ToArray();
+        TriA.tangents = tangent.ToArray();
+        TriA.uv = uv0.ToArray();
+        TriA.uv2 = uv2.ToArray();
+        TriA.SetUVs(2, uv3);
+        TriA.SetUVs(3, uv4);
+        // Triangles ===============================================================================
+        HashSet<Material> HSmaterials = new HashSet<Material>();
+        foreach (var poly in polys)
+        {
+            HSmaterials.Add( poly.material);
+        }
+        List<Material> Lmaterials = HSmaterials.ToList();
+        // ===============================================================================
+        TriA.subMeshCount = Lmaterials.Count;
+        List<List<int>> indexes = new List<List<int>>();
+        for (int i = 0; i < Lmaterials.Count; i++) indexes.Add(new List<int>());
+
+        newObject.GetComponent<MeshRenderer>().materials = Lmaterials.ToArray();
+        //Debug.Log(Lmaterials.Count);
+
+        foreach (var poly in polys) {
+            int submeshIndex = Lmaterials.IndexOf(poly.material);
+            for (int i = 0; i < poly.vertices.Count; i++)  {
+                int a = UniqueVertices.IndexOf(poly.vertices[i]);
+                //b = b + " " + a;
+                indexes[submeshIndex].Add(a);
+            }
+        }
+
+
+        for (int i = 0; i < TriA.subMeshCount; i++)   {
+            TriA.SetIndices(indexes[i], MeshTopology.Triangles, i);
+        }
         
         return TriA;
     }
+
+
 
     public static Vertex[] GetVertices(Mesh mesh, Vector3 origin)
     {
@@ -306,18 +342,32 @@ public class BSPNode
     public static List<Polygon> ModelToPolygons(GameObject thing)
     { // Для трансформации модельки сначала в список полигонов
         List<Polygon> finalPolys = new List<Polygon>();
-        int[] GATriangles = thing.GetComponent<MeshFilter>().mesh.triangles;
+        Mesh mesh = thing.GetComponent<MeshFilter>().mesh;
 
-        Vertex[] vertices = GetVertices(thing.GetComponent<MeshFilter>().mesh, thing.transform.position);
-
-        Material[] Materials = thing.GetComponent<MeshRenderer>().sharedMaterials;
+        int[] GATriangles = mesh.triangles;
+        Vertex[] vertices = GetVertices(mesh, thing.transform.position);
         Vector3 GAposition = thing.transform.position;
+        Material[] Materials = thing.GetComponent<MeshRenderer>().sharedMaterials;
 
-        //Debug.Log( vertices.Length);
-        for (int i = 0; i < thing.GetComponent<MeshFilter>().mesh.triangles.Length / 3; i++)
+        List<List<int>> mIndexes = new List<List<int>>();
+
+        // Этот for возвращает список списков, внутренний список содержит треугольники, индекс внутреннего списка соответствует материалу
+        for (int i = 0, c = mesh.subMeshCount; i < c; i++)
         {
-            finalPolys.Add(new Polygon(vertices[ GATriangles[i * 3 + 0]], vertices[GATriangles[i * 3 + 1]], vertices[GATriangles[i * 3 + 2]]));
+            var Indexes = new List<int>();
+            mesh.GetIndices(Indexes, i);
+            mIndexes.Add(Indexes);
         }
+        // ====================================================================================================================
+        for (int m = 0; m < mIndexes.Count; m++)
+        {
+            List<int> triangles = mIndexes[m];
+            for (int j = 0; j < triangles.Count; j += 3)
+            {
+                finalPolys.Add(new Polygon(vertices[GATriangles[j + 0]], vertices[GATriangles[j + 1]], vertices[GATriangles[j + 2]], Materials[m]));
+            }
+        }
+        // for (int i = 0; i < mesh.triangles.Length / 3; i++) {     finalPolys.Add(new Polygon(vertices[ GATriangles[i * 3 + 0]], vertices[GATriangles[i * 3 + 1]], vertices[GATriangles[i * 3 + 2]]));  }
         return finalPolys;
     }
 
