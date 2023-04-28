@@ -8,11 +8,16 @@ public class Cutting : MonoBehaviour
     public GameObject Pointer;
     public GameObject GA;
     public GameObject GB;
+    public GameObject GC;
+    public GameObject GD;
+    public GameObject HoleTest1;
+    public GameObject HoleTest2;
+    public GameObject HoleTest3;
     // Start is called before the first frame update
     void Start()
     {
         //Thingy();
-        MeshReconstructionTest();
+        HoleTest();
     }
 
     static float epsilon = 0.00001f;
@@ -21,19 +26,41 @@ public class Cutting : MonoBehaviour
     {
         
     }
+
+    public void HoleTest()
+    {
+        GameObject meshA = TheThingie;
+        meshA = Instantiate<GameObject>(meshA);
+        meshA.GetComponent<MeshFilter>().mesh = BSPNode.Interface(BSPNode.Operation.Substract, HoleTest1, HoleTest2, meshA);
+
+        
+        GameObject meshE = TheThingie;
+        meshE = Instantiate<GameObject>(meshE);
+        meshE.GetComponent<MeshFilter>().mesh = BSPNode.Interface(BSPNode.Operation.Substract, meshA, HoleTest3, meshE);
+        
+        /*
+        GameObject meshD = TheThingie;
+        meshD = Instantiate<GameObject>(meshD);
+        meshD.GetComponent<MeshFilter>().mesh = BSPNode.Interface(BSPNode.Operation.Union, GD, meshE, meshD);
+        */
+    }
+
     public void MeshReconstructionTest()
     {
         GameObject meshA = TheThingie;
-        meshA.transform.position = new Vector3(0, 0, 0);
 
 
         meshA = Instantiate<GameObject>(meshA);
         meshA.GetComponent<MeshFilter>().mesh = BSPNode.Interface(BSPNode.Operation.Substract, GA, GB, meshA);
         
-        meshA.transform.position = GA.transform.position;
+        GameObject meshE = TheThingie;
+        meshE = Instantiate<GameObject>(meshE);
+        meshE.GetComponent<MeshFilter>().mesh = BSPNode.Interface(BSPNode.Operation.Substract, GC, meshA, meshE);
 
-
-
+        GameObject meshD = TheThingie;
+        meshD = Instantiate<GameObject>(meshD);
+        meshD.GetComponent<MeshFilter>().mesh = BSPNode.Interface(BSPNode.Operation.Union, GD, meshE, meshD);
+        
     }
     public void SubtractTest()
     {
@@ -226,17 +253,17 @@ public class Cutting : MonoBehaviour
         
 
 
-        
+        /*
         foreach (var item in newOne)
         {
             RenderPolyVec(item.vertices[0].position, item.vertices[1].position, item.vertices[2].position);
         }
 
-        //Отрисовка
+
 
         RenderPolyVec(vertex1, vertex2, vertex3);
         RenderPolyVec(vertex4, vertex5, vertex6);
-
+        */
 
     }
 
@@ -339,11 +366,11 @@ public class Cutting : MonoBehaviour
     }
 
 
-    public void RenderPolyVec(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3 )
+    public void RenderPolyVec(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Vector3 origin )
     {
         GameObject meshA = TheThingie;
         meshA.transform.position = new Vector3(0, 0, 0);
-        Mesh TriA = new Mesh(); Vector3[] verticesA = new Vector3[] { vertex1, vertex2, vertex3 };
+        Mesh TriA = new Mesh(); Vector3[] verticesA = new Vector3[] { vertex1 + origin, vertex2 + origin, vertex3 + origin };
         TriA.vertices = verticesA; TriA.triangles = new int[] { 0, 1, 2 };
         meshA.GetComponent<MeshFilter>().mesh = TriA;
         Instantiate<GameObject>(meshA);
@@ -356,6 +383,18 @@ public class Cutting : MonoBehaviour
         Mesh TriA = new Mesh(); Vector3[] verticesA = new Vector3[] { Poly.vertices[0].position, Poly.vertices[1].position, Poly.vertices[2].position };
         TriA.vertices = verticesA; TriA.triangles = new int[] { 0, 1, 2 };
         meshA.GetComponent<MeshFilter>().mesh = TriA;
+        GameObject thingamagic = Instantiate<GameObject>(meshA);
+        //thingamagic.transform.position = Precursor;
+    }
+
+    public void RenderPolyPoly(Polygon Poly, Material mat)
+    {
+        GameObject meshA = TheThingie;
+        meshA.transform.position = new Vector3(0, 0, 0);
+        Mesh TriA = new Mesh(); Vector3[] verticesA = new Vector3[] { Poly.vertices[0].position, Poly.vertices[1].position, Poly.vertices[2].position };
+        TriA.vertices = verticesA; TriA.triangles = new int[] { 0, 1, 2 };
+        meshA.GetComponent<MeshFilter>().mesh = TriA;
+        meshA.GetComponent<MeshRenderer>().material = mat;
         GameObject thingamagic = Instantiate<GameObject>(meshA);
         //thingamagic.transform.position = Precursor;
     }

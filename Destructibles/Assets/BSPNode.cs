@@ -10,7 +10,6 @@ public class BSPNode
     public BSPNode back;
     public CuttingPlane plane;
 
-
     public BSPNode()
     {
         front = null;
@@ -164,6 +163,7 @@ public class BSPNode
         }
 
         Vector3 origin = A.transform.position;
+        Return.transform.position = origin;
 
         return ReturnMesh(tmp, origin, Return);
     }
@@ -276,39 +276,67 @@ public class BSPNode
         TriA.SetUVs(3, uv4);
         // Triangles ===============================================================================
         HashSet<Material> HSmaterials = new HashSet<Material>();
+        
+        
+        //Debug.Log("JOE BIDEN");
         foreach (var poly in polys)
         {
             HSmaterials.Add( poly.material);
+            //Debug.Log(poly.material);
         }
+
+
         List<Material> Lmaterials = HSmaterials.ToList();
+        /* if (Lmaterials.Count > 1) {
+            for (int i = 0; i < Lmaterials.Count; i++) {
+                for (int j = i + 1; j < Lmaterials.Count; j++)  {
+                    Debug.Log(Lmaterials[i] + " " + Lmaterials[j]);
+                    Debug.Log(Lmaterials[i] == Lmaterials[j]);
+                } }  }*/
+
+        //Lmaterials = Lmaterials.Distinct().ToList();
         // ===============================================================================
         TriA.subMeshCount = Lmaterials.Count;
         List<List<int>> indexes = new List<List<int>>();
-        for (int i = 0; i < Lmaterials.Count; i++) indexes.Add(new List<int>());
+        for (int i = 0; i < Lmaterials.Count; i++) { indexes.Add(new List<int>());}
 
         newObject.GetComponent<MeshRenderer>().materials = Lmaterials.ToArray();
-        //Debug.Log(Lmaterials.Count);
+
+        
 
         foreach (var poly in polys) {
             int submeshIndex = Lmaterials.IndexOf(poly.material);
+            
             for (int i = 0; i < poly.vertices.Count; i++)  {
                 int a = UniqueVertices.IndexOf(poly.vertices[i]);
                 //b = b + " " + a;
                 indexes[submeshIndex].Add(a);
+                
             }
         }
+        
 
 
         for (int i = 0; i < TriA.subMeshCount; i++)   {
             TriA.SetIndices(indexes[i], MeshTopology.Triangles, i);
+            //Debug.Log(indexes[i].Count);
         }
+
+        for (int i = 0; i < TriA.subMeshCount; i++)
+        {
+            List<int> rrr = new List<int>();
+            TriA.GetIndices(rrr, i);
+            //Debug.Log(rrr.Count);
+            //Debug.Log(newObject.GetComponent<MeshRenderer>().materials[i]);
+        }
+
         
         return TriA;
     }
 
 
 
-    public static Vertex[] GetVertices(Mesh mesh, Vector3 origin)
+    public static Vertex[] GetVertices(Mesh mesh, Transform origin)
     {
         int vcount = mesh.vertices.Count();
         Vector3[] positions = mesh.vertices;
@@ -326,7 +354,7 @@ public class BSPNode
 
         for (int i = 0; i < v.Length; i++)
         {
-            if (positions.Length== vcount)  v[i].position = positions[i] + origin;
+            if (positions.Length== vcount)  v[i].position = origin.TransformPoint(positions[i]);
             if (colors.Length   == vcount)  v[i].color    = colors[i];
             if (normals.Length  == vcount)  v[i].normal   = normals[i];
             if (tangents.Length == vcount)  v[i].tangent  = tangents[i];
@@ -345,26 +373,27 @@ public class BSPNode
         Mesh mesh = thing.GetComponent<MeshFilter>().mesh;
 
         int[] GATriangles = mesh.triangles;
-        Vertex[] vertices = GetVertices(mesh, thing.transform.position);
+        Vertex[] vertices = GetVertices(mesh, thing.transform);
         Vector3 GAposition = thing.transform.position;
         Material[] Materials = thing.GetComponent<MeshRenderer>().sharedMaterials;
 
         List<List<int>> mIndexes = new List<List<int>>();
 
         // Этот for возвращает список списков, внутренний список содержит треугольники, индекс внутреннего списка соответствует материалу
-        for (int i = 0, c = mesh.subMeshCount; i < c; i++)
+        for (int i = 0; i < mesh.subMeshCount; i++)
         {
             var Indexes = new List<int>();
             mesh.GetIndices(Indexes, i);
             mIndexes.Add(Indexes);
         }
+
         // ====================================================================================================================
         for (int m = 0; m < mIndexes.Count; m++)
         {
             List<int> triangles = mIndexes[m];
             for (int j = 0; j < triangles.Count; j += 3)
             {
-                finalPolys.Add(new Polygon(vertices[GATriangles[j + 0]], vertices[GATriangles[j + 1]], vertices[GATriangles[j + 2]], Materials[m]));
+                finalPolys.Add(new Polygon(vertices[triangles[j + 0]], vertices[triangles[j + 1]], vertices[triangles[j + 2]], Materials[m]));
             }
         }
         // for (int i = 0; i < mesh.triangles.Length / 3; i++) {     finalPolys.Add(new Polygon(vertices[ GATriangles[i * 3 + 0]], vertices[GATriangles[i * 3 + 1]], vertices[GATriangles[i * 3 + 2]]));  }
