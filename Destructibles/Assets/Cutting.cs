@@ -16,8 +16,47 @@ public class Cutting : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //Thingy();
-        HoleTest();
+        AsteroidGenerator gen = new AsteroidGenerator();
+
+        List<AsteroidPolygon> polys = gen.GenerateCuboid(2, 2, 2);
+
+        foreach (var item in polys)
+        {
+            RenderPolyVec(item.vertice[0].position, item.vertice[1].position, item.vertice[2].position, new Vector3(0,0,0) );
+        }
+
+        polys = gen.GenerateCuboid(1, 2, 4);
+
+        foreach (var item in polys)
+        {
+            RenderPolyVec(item.vertice[0].position, item.vertice[1].position, item.vertice[2].position, new Vector3(3, 0, 0));
+        }
+
+        polys = gen.GenerateCuboid(3, 5, 3);
+
+        foreach (var item in polys)
+        {
+            RenderPolyVec(item.vertice[0].position, item.vertice[1].position, item.vertice[2].position, new Vector3(-5, 0, 0));
+        }
+
+        polys = gen.GenerateCuboid(1, 7, 1);
+
+        foreach (var item in polys)
+        {
+            RenderPolyVec(item.vertice[0].position, item.vertice[1].position, item.vertice[2].position, new Vector3(0, 0, 5));
+        }
+
+        polys = gen.GenerateCuboid(2, 6, 2);
+
+        foreach (var item in polys)
+        {
+            RenderPolyVec(item.vertice[0].position, item.vertice[1].position, item.vertice[2].position, new Vector3(-3, 0, 5));
+        }
+
+
+        //HoleTest();
+        //GridTest();
+
     }
 
     static float epsilon = 0.00001f;
@@ -26,6 +65,7 @@ public class Cutting : MonoBehaviour
     {
         
     }
+
 
     public void HoleTest()
     {
@@ -215,6 +255,28 @@ public class Cutting : MonoBehaviour
             RenderPolyPoly(item);
         }
 
+    }
+
+    public void GridTest()
+    {
+        GameObject meshA = TheThingie;
+        GameObject[,,] Nodes = new GameObject[10, 10, 10];
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                for (int q = 0; q < 10; q++)
+                {
+                    if (Random.Range(0, 10) > 7)
+                    {
+                        Nodes[i, j, q] = Instantiate<GameObject>(meshA);
+                        Nodes[i, j, q].transform.position = new Vector3(i - 5, j + 1, q - 5);
+                        Nodes[i, j, q].transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                        Debug.Log(i + " " + j + " " + q);
+                    }
+                }
+            }
+        }
     }
 
     public void Moller()
