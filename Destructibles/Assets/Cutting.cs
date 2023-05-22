@@ -16,42 +16,25 @@ public class Cutting : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        AsteroidGenerator gen = new AsteroidGenerator();
 
-        List<AsteroidPolygon> polys = gen.GenerateCuboid(2, 2, 2);
+        /*
+        List<Polygon> newMesh1 = new AsteroidGenerator().StepOne();
 
-        foreach (var item in polys)
+        for (int i = 0; i < newMesh1.Count; i++)
         {
-            RenderPolyVec(item.vertice[0].position, item.vertice[1].position, item.vertice[2].position, new Vector3(0,0,0) );
+            //Debug.Log(newMesh1[i].ToString());
+            if (newMesh1[i].vertices.Count > 3)
+            {
+                newMesh1.AddRange(newMesh1[i].BreakApart()); // Splits i element into smaller polygons and returns them
+                newMesh1.RemoveAt(i);
+                i--;
+            }
         }
 
-        polys = gen.GenerateCuboid(1, 2, 4);
-
-        foreach (var item in polys)
+        foreach (var item in newMesh1)
         {
-            RenderPolyVec(item.vertice[0].position, item.vertice[1].position, item.vertice[2].position, new Vector3(3, 0, 0));
-        }
-
-        polys = gen.GenerateCuboid(3, 5, 3);
-
-        foreach (var item in polys)
-        {
-            RenderPolyVec(item.vertice[0].position, item.vertice[1].position, item.vertice[2].position, new Vector3(-5, 0, 0));
-        }
-
-        polys = gen.GenerateCuboid(1, 7, 1);
-
-        foreach (var item in polys)
-        {
-            RenderPolyVec(item.vertice[0].position, item.vertice[1].position, item.vertice[2].position, new Vector3(0, 0, 5));
-        }
-
-        polys = gen.GenerateCuboid(2, 6, 2);
-
-        foreach (var item in polys)
-        {
-            RenderPolyVec(item.vertice[0].position, item.vertice[1].position, item.vertice[2].position, new Vector3(-3, 0, 5));
-        }
+            RenderPolyPoly(item);
+        }*/
 
 
         //HoleTest();

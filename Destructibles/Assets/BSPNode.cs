@@ -168,6 +168,9 @@ public class BSPNode
         return ReturnMesh(tmp, origin, Return);
     }
 
+
+
+
     public static List<Polygon> Union(List<Polygon> polyA, List<Polygon> polyB)
     {
         BSPNode a = new BSPNode(polyA);
@@ -225,6 +228,7 @@ public class BSPNode
         List<int> triangles = new List<int>();
 
         List<Polygon> NewOnes = new List<Polygon>();
+// Takes polygons that have 4 or more vertices and breaks them into smaller polygons
         for (int i = 0; i < polys.Count; i++)
         {
             if (polys[i].vertices.Count > 3)
@@ -399,6 +403,22 @@ public class BSPNode
         // for (int i = 0; i < mesh.triangles.Length / 3; i++) {     finalPolys.Add(new Polygon(vertices[ GATriangles[i * 3 + 0]], vertices[GATriangles[i * 3 + 1]], vertices[GATriangles[i * 3 + 2]]));  }
         return finalPolys;
     }
+
+    public static List<Polygon> ModelToPolygons(Mesh mesh)
+    { // Для трансформации модельки сначала в список полигонов
+        List<Polygon> finalPolys = new List<Polygon>();
+        int[] GATriangles = mesh.triangles;
+        List<Vector3> vertices = new List<Vector3>();
+        mesh.GetVertices(vertices);
+        List<int> indices = new List<int>();
+        mesh.GetIndices(indices, 0);
+        for (int j = 0; j < indices.Count; j += 3) {
+            finalPolys.Add(new Polygon(vertices[indices[j + 0]], vertices[indices[j + 1]], vertices[indices[j + 2]]));
+        }
+        return finalPolys;
+    }
+
+
 
 }
 

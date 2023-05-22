@@ -3,172 +3,72 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AsteroidGenerator {
-    public AsteroidNode[,,] matrix;
-    public List<AsteroidPolygon> GenerateCuboid(int length, int height, int width)
+
+    public List<Polygon> StepOne()
     {
-        if (length == 0 || height == 0 || width == 0){return null; }
-        length++;
-        height++;
-        width++;
-        List<AsteroidNode> vertices = new List<AsteroidNode>();
-        this.matrix = new AsteroidNode[length, height, width];
-
-        for (int i = 0; i < length; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
-                for (int q = 0; q < width; q++)
-                {
-                    bool Inside = (i < length -1 & j < height -1 & q < width - 1 & i > 0  & j > 0 & q > 0); // Check if a point is inside the matrix
-                    if (!Inside)
-                    {
-                        matrix[i, j, q] = new AsteroidNode(i, j, q, vertices);
-                    }
-                }
-            }
-        }
-        length--;
-        height--;
-        width--;
-
-        List<AsteroidPolygon> polygons = new List<AsteroidPolygon>();
-
-        for (int i = 0; i < length; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
-                polygons.AddRange(
-                MakeSquare(matrix[i, j, 0], new Vector3Int(1, 1, 0), new Vector3Int(length, height, width))
-                );
-            }
-        }
-
-        for (int i = 0; i < height; i++)
-        {
-            for (int j = 0; j < width; j++)
-            {
-                polygons.AddRange(
-                MakeSquare(matrix[0, i, j], new Vector3Int(0, 1, 1), new Vector3Int(length, height, width))
-                );
-            }
-        }
-
-        for (int i = 0; i < length; i++)
-        {
-            for (int j = 0; j < width; j++)
-            {
-                polygons.AddRange(
-                MakeSquare(matrix[i, 0, j], new Vector3Int(1, 0, 1), new Vector3Int(length, height, width))
-                );
-            }
-        }
-
-
-        return polygons;
-
-    }
-
-    public AsteroidPolygon[] MakeSquare(AsteroidNode node, Vector3Int dir, Vector3Int matrixSize) // Vector 3 must contain two "1" and one "0" (0,1,1) / (1,0,1) / (1,1,0) 
-    {
-        AsteroidPolygon[] square = new AsteroidPolygon[4]; // It returns 2 polygons in a shape of a square from one side, and 2 plygons from the opposite side
-
-        AsteroidNode squareNode = MatrixVector(node.position + dir);
-        Vector3Int first = new Vector3Int();
-        Vector3Int second = new Vector3Int();
-        if (dir.x == 0)
-        {
-            first = new Vector3Int(0, 1, 0);
-            second = new Vector3Int(0, 0, 1);
-        }
-        else if (dir.y == 0)
-        {
-            first = new Vector3Int(0, 0, 1);
-            second = new Vector3Int(1, 0, 0);
-        }
-        else
-        {
-            first = new Vector3Int(1, 0, 0);
-            second = new Vector3Int(0, 1, 0);
-        }
-
-        AsteroidNode firstNode = MatrixVector(node.position + first);
-        AsteroidNode secondNode = MatrixVector(node.position + second);
-        square[0] = new AsteroidPolygon(node, secondNode, firstNode);
-        square[1] = new AsteroidPolygon(squareNode, firstNode, secondNode);
-
+        List<Polygon> polygons = new List<Polygon>();
         
 
-        Vector3Int oppositeNodePosition = matrixSize - node.position;
-        AsteroidNode oppositeNode = MatrixVector(oppositeNodePosition);
+        List<Polygon> core = new List<Polygon>();
+        core = AsteroidGEneratorVolumes.GenerateCuboidBSPCompatible(8,8,8, new Vector3Int(0,0,0));
 
-        AsteroidNode oppositeSquareNode = MatrixVector(oppositeNodePosition - dir);
-        AsteroidNode oppositeFirst = MatrixVector(oppositeNodePosition - first);
-        AsteroidNode oppositeSecond = MatrixVector(oppositeNodePosition - second);
-
-        square[2] = new AsteroidPolygon(oppositeNode, oppositeFirst, oppositeSecond);
-        square[3] = new AsteroidPolygon(oppositeSquareNode, oppositeSecond, oppositeFirst);
-
-        Debug.Log(square[0].ToString());
-        Debug.Log(square[1].ToString());
-        Debug.Log(square[2].ToString());
-        Debug.Log(square[3].ToString());
-
-        return square;
-    }
-
-    public AsteroidNode MatrixVector(Vector3Int vect)
-    {
-        return this.matrix[vect.x, vect.y, vect.z];
-    }
-
-}
-
-public class AsteroidPolygon
-{
-    public AsteroidNode[] vertice = new AsteroidNode[3];
-
-    public AsteroidPolygon(AsteroidNode one, AsteroidNode two, AsteroidNode three)
-    {
-        vertice[0] = one;
-        vertice[1] = two;
-        vertice[2] = three;
-    }
-
-    public override string ToString()
-    {
-        string vert = "";
-        foreach (var vertice in this.vertice)
+        List<Vector3Int> points = new List<Vector3Int>();
+        for (int i = 0; i < 15; i++)
         {
-            vert = vert + vertice.position.ToString();
+            Vector3 pos = core[Random.Range(0, core.Count)].vertices[Random.Range(0,3)].position;
+            points.Add(new Vector3Int((int)Mathf.Round(pos.x), (int)Mathf.Round(pos.y), (int)Mathf.Round(pos.z)));
         }
-        return $"[{vertice.Length}] Vertices: {vert}";
+        foreach (var point in points)
+        {
+            core = BSPNode.Substract(core, RandomVolume(2, 2, 2, 0.0f, point));
+        }
+        
+
+        /*
+        foreach (var point in points)
+        {
+            core = BSPNode.Union(core, RandomVolume(6, 6, 6, 0.5f, point));
+        }
+
+        points = GenerateRandomPoints(15, 0, 0, 0, 8, 8, 8, new Vector3Int(0, 0, 0));
+        foreach (var point in points)
+        {
+            core = BSPNode.Union(core, RandomVolume(2, 2, 2, 0.5f, point));
+        }
+
+        points.Clear();
+        */
+
+
+        return core;
+    }
+
+
+
+    public List<Polygon> RandomVolume(int x, int y, int z, float deviation, Vector3Int origin)
+    {
+        x = (int)Random.Range(Mathf.Round(x - x * deviation), Mathf.Round(x + x * deviation));
+        y = (int)Random.Range(Mathf.Round(y - y * deviation), Mathf.Round(y + y * deviation));
+        z = (int)Random.Range(Mathf.Round(z - z * deviation), Mathf.Round(z + z * deviation));
+        return AsteroidGEneratorVolumes.GenerateCuboidBSPCompatible(x, y, z, origin);
+    }
+
+
+    public List<Vector3Int> GenerateRandomPoints(int amount, int x1, int y1, int z1, int x2, int y2, int z2, Vector3Int origin)
+    {
+        List<Vector3Int> points = new List<Vector3Int>();
+        for (int i = 0; i < amount; i++) {
+            int x = (int)Mathf.Round( Random.Range(x1, x2));
+            int y = (int)Mathf.Round( Random.Range(y1, y2));
+            int z = (int)Mathf.Round( Random.Range(z1, z2));
+            points.Add( new Vector3Int(x,y,z) + origin);
+        }
+        return points;
     }
 
 }
 
-public class AsteroidNode
-{
-    public int number;
-    public AsteroidNode plusX = null;
-    public AsteroidNode minusX = null;
-    public AsteroidNode plusY = null;
-    public AsteroidNode minusY = null;
-    public AsteroidNode plusZ = null;
-    public AsteroidNode minusZ = null;
-    public Vector3Int position;
 
-    public AsteroidNode(int x, int y, int z, List<AsteroidNode> list)
-    {
-        this.position = new Vector3Int(x,y,z);
-        list.Add(this);
-        this.number = list.Count;
-        //Debug.Log(position + " " + this.number);
-    }
-    public AsteroidNode(int x, int y, int z)
-    {
-        this.position = new Vector3Int(x, y, z);
-    }
-}
 
 
 /*
