@@ -16,24 +16,25 @@ public class Cutting : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Mesh mesh = new SphereToAsteroid().icosahedron(3);
+        new SphereToAsteroid().DistortSphere(mesh, 12, 1f);
+        //new SphereToAsteroid().SubdivideTriangleToFour(mesh, 1);
+
+
+
+        GameObject meshE = TheThingie;
+        meshE = Instantiate<GameObject>(meshE);
+        meshE.GetComponent<MeshFilter>().mesh = mesh;
+        
+
+
+
+
 
         /*
-        List<Polygon> newMesh1 = new AsteroidGenerator().StepOne();
-
-        for (int i = 0; i < newMesh1.Count; i++)
-        {
-            //Debug.Log(newMesh1[i].ToString());
-            if (newMesh1[i].vertices.Count > 3)
-            {
-                newMesh1.AddRange(newMesh1[i].BreakApart()); // Splits i element into smaller polygons and returns them
-                newMesh1.RemoveAt(i);
-                i--;
-            }
-        }
-
         foreach (var item in newMesh1)
         {
-            RenderPolyPoly(item);
+            RenderPolyVec(item.vertices[0].position, item.vertices[1].position, item.vertices[2].position, Vector3.zero);
         }*/
 
 
