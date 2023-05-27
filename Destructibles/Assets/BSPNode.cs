@@ -338,6 +338,102 @@ public class BSPNode
         return TriA;
     }
 
+    public static Mesh ReturnMesh(List<Polygon> polys, Vector3 origin)
+    {
+        Mesh TriA = new Mesh();
+        List<Vector3> HashSet = new List<Vector3>();
+        List<int> triangles = new List<int>();
+
+        List<Polygon> NewOnes = new List<Polygon>();
+        // Takes polygons that have 4 or more vertices and breaks them into smaller polygons
+        for (int i = 0; i < polys.Count; i++)
+        {
+            if (polys[i].vertices.Count > 3)
+            {
+                List<Polygon> tmp = polys[i].BreakApart();
+                polys[i] = tmp[0];
+                tmp.RemoveAt(0);
+                NewOnes.AddRange(tmp);
+            }
+        }
+        polys.AddRange(NewOnes);
+        // Vetices ===============================================================================
+        List<Vertex> notUnique = new List<Vertex>();
+        foreach (var poly in polys)
+        {
+            notUnique.AddRange(poly.vertices);
+        }
+
+        List<Vertex> UniqueVertices = notUnique.Distinct().ToList();
+        List<Vector3> vectorVertice = new List<Vector3>();
+        List<Color> color = new List<Color>();
+        List<Vector3> normal = new List<Vector3>();
+        List<Vector4> tangent = new List<Vector4>();
+        List<Vector2> uv0 = new List<Vector2>();
+        List<Vector2> uv2 = new List<Vector2>();
+        List<Vector4> uv3 = new List<Vector4>();
+        List<Vector4> uv4 = new List<Vector4>();
+
+        foreach (var vertex in UniqueVertices)
+        {
+            vectorVertice.Add(vertex.position - origin);
+            color.Add(vertex.color);
+            normal.Add(vertex.normal);
+            tangent.Add(vertex.tangent);
+            uv0.Add(vertex.uv0);
+            uv2.Add(vertex.uv2);
+            uv3.Add(vertex.uv3);
+            uv4.Add(vertex.uv4);
+        }
+
+        TriA.vertices = vectorVertice.ToArray();
+        TriA.colors = color.ToArray();
+        TriA.normals = normal.ToArray();
+        TriA.tangents = tangent.ToArray();
+        TriA.uv = uv0.ToArray();
+        TriA.uv2 = uv2.ToArray();
+        TriA.SetUVs(2, uv3);
+        TriA.SetUVs(3, uv4);
+        // Materials ===============================================================================
+        HashSet<Material> HSmaterials = new HashSet<Material>();
+        foreach (var poly in polys)
+        {
+            HSmaterials.Add(poly.material);
+        }
+
+        List<Material> Lmaterials = HSmaterials.ToList();
+        // Triangles ===============================================================================
+        TriA.subMeshCount = Lmaterials.Count;
+        List<List<int>> indexes = new List<List<int>>();
+        for (int i = 0; i < Lmaterials.Count; i++) { indexes.Add(new List<int>()); }
+        // !!!!!!!!!!!!!!=========!!!!!!!!!!!!!!!
+        //newObject.GetComponent<MeshRenderer>().materials = Lmaterials.ToArray();
+
+        foreach (var poly in polys)
+        {
+            int submeshIndex = Lmaterials.IndexOf(poly.material);
+
+            for (int i = 0; i < poly.vertices.Count; i++)
+            {
+                int a = UniqueVertices.IndexOf(poly.vertices[i]);
+                //b = b + " " + a;
+                indexes[submeshIndex].Add(a);
+            }
+        }
+
+        for (int i = 0; i < TriA.subMeshCount; i++)
+        {
+            TriA.SetIndices(indexes[i], MeshTopology.Triangles, i);
+        }
+        for (int i = 0; i < TriA.subMeshCount; i++)
+        {
+            List<int> rrr = new List<int>();
+            TriA.GetIndices(rrr, i);
+        }
+        return TriA;
+    }
+
+
 
 
     public static Vertex[] GetVertices(Mesh mesh, Transform origin)

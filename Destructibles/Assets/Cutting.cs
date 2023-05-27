@@ -13,33 +13,25 @@ public class Cutting : MonoBehaviour
     public GameObject HoleTest1;
     public GameObject HoleTest2;
     public GameObject HoleTest3;
+    public Asteroid AsteroidMainBody;
     // Start is called before the first frame update
     void Start()
     {
-        Mesh mesh = new SphereToAsteroid().icosahedron(3);
-        new SphereToAsteroid().DistortSphere(mesh, 12, 1f);
-        //new SphereToAsteroid().SubdivideTriangleToFour(mesh, 1);
-
-
-
-        GameObject meshE = TheThingie;
-        meshE = Instantiate<GameObject>(meshE);
-        meshE.GetComponent<MeshFilter>().mesh = mesh;
-        
-
-
-
-
-
         /*
-        foreach (var item in newMesh1)
-        {
-            RenderPolyVec(item.vertices[0].position, item.vertices[1].position, item.vertices[2].position, Vector3.zero);
-        }*/
+        GameObject meshA = TheThingie;
+        meshA = Instantiate<GameObject>(meshA);
+        meshA.GetComponent<MeshFilter>().mesh = new SphereToAsteroid().Cube();
+        */
+        
+        
+        Mesh mesh = new SphereToAsteroid().icosahedron(1);
+        new SphereToAsteroid().DistortSphere(mesh, 0.5f, 1f, 0.5f, 12, 1f);
+        new SphereToAsteroid().Resize(mesh, new Vector3(2, 2, 2)); ;
 
-
-        //HoleTest();
-        //GridTest();
+        Asteroid test = ScriptableObject.Instantiate( AsteroidMainBody);
+        GameObject meshB = TheThingie;
+        List<List<Polygon>> meshList = test.SplitAsteroid(mesh, 1f);
+        
 
     }
 

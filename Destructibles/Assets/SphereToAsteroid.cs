@@ -7,6 +7,30 @@ public class SphereToAsteroid
 { // yet another futile attempt to produce something that resembles an asteroid
     //public MeshFilter sphere;
 
+    public Mesh Cube()
+    {
+        Mesh mesh = new Mesh();
+        List<Vector3> vertices = new List<Vector3> { 
+            new Vector3(0, 0, 0), new Vector3(1, 0, 0), 
+            new Vector3(1, 1, 0), new Vector3(0, 1, 0), 
+            new Vector3(0, 0, 1), new Vector3(1, 0, 1), 
+            new Vector3(1, 1, 1), new Vector3(0, 1, 1) 
+        };
+
+        List<int> triangles = new List<int>
+        {
+            2,1,0, 3,2,0,
+            6,5,1, 2,6,1,
+            6,7,4, 5,6,4,
+            4,7,3, 0,4,3,
+            7,6,2, 3,7,2,
+            5,4,0, 1,5,0
+        };
+        mesh.SetVertices(vertices);
+        mesh.SetTriangles(triangles,0);
+        return mesh;
+    }
+
     public Mesh icosahedron(int subdivisions)
     {
         Mesh mesh = new Mesh();
@@ -42,19 +66,15 @@ public class SphereToAsteroid
         triangles1.AddRange(triangles3);
         triangles1.AddRange(triangles4);
         triangles1.AddRange(triangles5);
-
         mesh.SetTriangles(triangles1, 0);
-
         SubdivideTriangleToFour(mesh, subdivisions);
-
-
         projectUnitToSphere(mesh);
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
-
-
         return mesh;
     }
+
+
 
     public void projectUnitToSphere(Mesh inputMesh) {
         List<Vector3> vertices = new List<Vector3>();
@@ -139,9 +159,28 @@ public class SphereToAsteroid
         return (a + b) / 2;
     }
 
+    public void Resize(Mesh mesh, Vector3 scale)
+    {
+        List<Vector3> points = new List<Vector3>(mesh.vertices);
+        for (int i = 0; i < points.Count; i++)
+        {
+            points[i] = new Vector3( points[i].x * scale.x, points[i].y * scale.y, points[i].z * scale.z );
+        }
+        mesh.SetVertices(points);
+    }
+
+    public void Move(Mesh mesh, Vector3 scale)
+    {
+        List<Vector3> points = new List<Vector3>(mesh.vertices);
+        for (int i = 0; i < points.Count; i++)
+        {
+            points[i] = new Vector3(points[i].x + scale.x, points[i].y + scale.y, points[i].z + scale.z);
+        }
+        mesh.SetVertices(points);
+    }
 
 
-    public void DistortSphere(Mesh sphere, int numberOfPoints = 10, float intensity = 1f)
+    public void DistortSphere(Mesh sphere, float vx, float vy, float vz, int numberOfPoints = 10, float intensity = 1f)
     {
 
         List<Vector3> points = new List<Vector3>();
@@ -150,9 +189,9 @@ public class SphereToAsteroid
         while (points.Count < numberOfPoints & failSafe < 100)
         {
             failSafe++;
-            float x = Random.Range(-0.6f, 0.6f);
-            float y = Random.Range(-0.6f, 0.6f);
-            float z = Random.Range(-0.6f, 0.6f);
+            float x = Random.Range(-vx, vx);
+            float y = Random.Range(-vy, vy);
+            float z = Random.Range(-vz, vz);
             if (Distance(new Vector3(x,y,z), Vector3.zero) > 0.2f)
             {
                 points.Add(new Vector3(x,y,z));
@@ -182,8 +221,7 @@ public class SphereToAsteroid
     }
 
 }
-
-public class AstroPoly {
+class AstroPoly {
     public Vector3[] vertices = new Vector3[3];
     public AstroPoly(Vector3 v1, Vector3 v2, Vector3 v3)
     {
