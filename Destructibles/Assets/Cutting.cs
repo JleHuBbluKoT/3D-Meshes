@@ -13,25 +13,50 @@ public class Cutting : MonoBehaviour
     public GameObject HoleTest1;
     public GameObject HoleTest2;
     public GameObject HoleTest3;
-    public Asteroid AsteroidMainBody;
+    public GameObject AsteroidMainBody;
     // Start is called before the first frame update
     void Start()
     {
         /*
+        MyMathLibrary.LinearEquasion(new Vector2(1,0), new Vector2(3,2));
+        MyMathLibrary.LinearEquasion(new Vector2(7f, 0), new Vector2(3, 2));
+        */
+        //MyMathLibrary.lineIntersection(new Vector2(1, 0), new Vector2(3, 2), new Vector2(7f, 0), new Vector2(3, 2));
+        /*
+        BSPNode myObject = new BSPNode( BSPNode.ModelToPolygons(GA) );
+        BSPNode secondObject = new BSPNode(BSPNode.ModelToPolygons(GB));
+
+        List<Polygon> newObject = BSPNode.Substract(BSPNode.ModelToPolygons(GA), BSPNode.ModelToPolygons(GB));
+        newObject = BSPNode.Substract(newObject, BSPNode.ModelToPolygons(GC));
+        newObject = BSPNode.Substract(newObject, BSPNode.ModelToPolygons(GD));
+
+        //myObject.b
+
+
         GameObject meshA = TheThingie;
         meshA = Instantiate<GameObject>(meshA);
-        meshA.GetComponent<MeshFilter>().mesh = new SphereToAsteroid().Cube();
+        meshA.GetComponent<MeshFilter>().mesh = BSPNode.ReturnMesh(newObject, Vector3.zero);
+        
         */
-        
-        
-        Mesh mesh = new SphereToAsteroid().icosahedron(1);
-        new SphereToAsteroid().DistortSphere(mesh, 0.5f, 1f, 0.5f, 12, 1f);
-        new SphereToAsteroid().Resize(mesh, new Vector3(2, 2, 2)); ;
+        /*
+        Mesh mesh = TheThingie.GetComponent<MeshFilter>().mesh;
+        List<Polygon> meshList = BSPNode.ModelToPolygons(TheThingie);
+        List<BSPEdge> edges = new List<BSPEdge>();
+        Polygon cutter = new Polygon(new Vector3(0,0,0), new Vector3(1,0,0), new Vector3(0,1,0));
+        foreach (var item in meshList)
+        {
+            cutter.plane.EdgeSearch(item, edges);
 
-        Asteroid test = ScriptableObject.Instantiate( AsteroidMainBody);
-        GameObject meshB = TheThingie;
-        List<List<Polygon>> meshList = test.SplitAsteroid(mesh, 1f);
-        
+            
+        }*/
+
+
+        /*
+        Mesh mesh = new SphereToAsteroid().icosahedron(2);
+        new SphereToAsteroid().DistortSphere(mesh, 0.5f, 1f, 0.5f, 8, 2.5f);
+        GameObject test = Instantiate( AsteroidMainBody);
+        test.GetComponent<Asteroid>().SplitAsteroid(mesh, 1f);
+        */
 
     }
 
@@ -122,7 +147,7 @@ public class Cutting : MonoBehaviour
         BSPNode testCubeA = new BSPNode(GA);
         testCubeA.Flip();
         
-        List<Polygon> NewB = testCubeA.DeleteInsides(GBPolys, "start", 0);
+        List<Polygon> NewB = testCubeA.DeleteInsides(GBPolys);
 
         List<Polygon> NewOnes = new List<Polygon>();
         for (int i = 0; i < NewB.Count; i++)
@@ -163,7 +188,7 @@ public class Cutting : MonoBehaviour
 
         BSPNode testCubeA = new BSPNode(GA);
 
-        List<Polygon> NewB =  testCubeA.DeleteInsides(GBPolys, "start", 0);
+        List<Polygon> NewB =  testCubeA.DeleteInsides(GBPolys);
 
         List<Polygon> NewOnes = new List<Polygon>();
         for (int i = 0; i < NewB.Count; i++)
@@ -188,6 +213,7 @@ public class Cutting : MonoBehaviour
 
     public void First3DCheck()
     {
+        /*
         List<Polygon> GAPolys = new List<Polygon>();
         List<Polygon> GBPolys = new List<Polygon>();
 
@@ -230,7 +256,7 @@ public class Cutting : MonoBehaviour
         {
             RenderPolyPoly(item);
         }
-
+        */
     }
 
     public void GridTest()
@@ -257,6 +283,7 @@ public class Cutting : MonoBehaviour
 
     public void Moller()
     {
+        /*
         Vector3 offset = new Vector3(0,0,0);
         Vector3 vertex1 = new Vector3(-1, 0, -1) + offset;
         Vector3 vertex2 = new Vector3(0, 3, 1) + offset;
@@ -286,7 +313,7 @@ public class Cutting : MonoBehaviour
                 newOne.RemoveAt(i);
             }
         }
-
+        */
 
         
 

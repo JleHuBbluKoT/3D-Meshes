@@ -18,11 +18,11 @@ public class BSPNode
 
     public BSPNode(GameObject thing )
     { // Превращает объект в ноду
-        this.Build(ModelToPolygons(thing), "start", 0);
+        this.Build(ModelToPolygons(thing));
     }
     public BSPNode(List<Polygon> _list)
     {
-        this.Build(_list, "start", 0);
+        this.Build(_list);
     }
     public BSPNode(List<Polygon> list, CuttingPlane plane, BSPNode front, BSPNode back) {
         this.Polys = list;
@@ -37,10 +37,11 @@ public class BSPNode
     // Смысл в проверках есть только внутри группы, которая также делится на две
     // Итого получается что-то вроде BSP дерева
     // Эту функцию можно использовать также для добавления новых полигонов в уже существующее дерево
-    public void Build(List<Polygon> listPoly, string dir, int depth)
+    public void Build(List<Polygon> listPoly)
     {
         //Debug.Log(dir + " " + depth);
         if (listPoly.Count < 1)  return; // Проверка на то что это полигон без ошибок и на то что полигон существует
+
 
         if (Polys == null)
         {
@@ -63,19 +64,43 @@ public class BSPNode
         // Все полигоны которые оказались спереди отправляютсяс строить дерево друг об друга
         // Все полигоны которые оказались за этой плоскостью также начнут строить БСП дерево
         if (listFront.Count > 0)  {
-            front = new BSPNode();
-            front.Build(listFront, "front", depth+1);
+            if (front != null) {
+                front.Build(listFront);
+            } else {
+                front = new BSPNode();
+                front.Build(listFront);
+            }
         }
 
         if (listBack.Count > 0) {
-            back = new BSPNode();
-            back.Build(listBack, "back", depth + 1);
+            if (back != null) {
+                back.Build(listFront);
+            }
+            else {
+                back = new BSPNode();
+                back.Build(listBack);
+            }
         }
 
     }
 
+    public void ClipTo(BSPNode other)
+    {
+        this.Polys = other.DeleteInsides(this.Polys);
+
+        if (this.front != null)
+        {
+            this.front.ClipTo(other);
+        }
+
+        if (this.back != null)
+        {
+            this.back.ClipTo(other);
+        }
+    }
+
     // Используя БСП дерево этой ноды делить полигоны другой модельки
-    public List<Polygon> DeleteInsides(List<Polygon> otherPoly, string dir = "start", int depth = 0)
+    public List<Polygon> DeleteInsides(List<Polygon> otherPoly)
     {
         //Debug.Log(dir + " " + depth);
         if (this.plane == null || !(this.plane.normal.magnitude > 0)) {
@@ -91,12 +116,12 @@ public class BSPNode
         //Debug.Log(listFront.Count + " " + listBack.Count);
         // Перед
         if (this.front != null)  {
-            listFront = this.front.DeleteInsides(listFront, "front", depth + 1);
+            listFront = this.front.DeleteInsides(listFront);
         }
 
         // Зад. 
         if (this.back != null)   {
-            listBack = this.back.DeleteInsides(listBack, "back", depth + 1);
+            listBack = this.back.DeleteInsides(listBack);
         }
         else { // Если у основной модельки нету задней ноды, значит эти полигоны находятся внутри и удалятся. 
             listBack.Clear();
@@ -107,7 +132,6 @@ public class BSPNode
         // Вернуть полигоны не находящиеся внутри этого дерева
         return listFront;
     }
-
 
     // Рекурсивно переворачивает все полигоны
     // Flip() в комбинации с DeletInsides() позволит мне удалять все полигоны ВНЕ модельки, что нужно для некоторых операций
@@ -137,9 +161,9 @@ public class BSPNode
         return ret;
     }
 
-    public BSPNode CopyNode()
+    public static BSPNode CopyNode(BSPNode node)
     {
-        BSPNode copy = new BSPNode(this.Polys, this.plane, this.front, this.back);
+        BSPNode copy = new BSPNode(node.Polys, node.plane, node.front, node.back);
         return copy;
     }
 
@@ -169,7 +193,25 @@ public class BSPNode
     }
 
 
+    public static BSPNode ClippingUnion(BSPNode polyA, BSPNode polyB)
+    {
+        BSPNode a = CopyNode(polyA);
+        BSPNode b = CopyNode(polyB);
 
+        List<Polygon> Half1 = a.DeleteInsides(polyB.ToPolygons());
+        List<Polygon> Half2 = b.DeleteInsides(polyA.ToPolygons());
+
+        BSPNode finish1 = new BSPNode(Half1);
+        BSPNode finish2 = new BSPNode(Half2);
+
+        //a.ClipTo(b);
+
+
+        finish1.Build(finish2.ToPolygons());
+        //BSPNode ret = new BSPNode(a.ToPolygons());
+
+        return finish1;
+    }
 
     public static List<Polygon> Union(List<Polygon> polyA, List<Polygon> polyB)
     {
@@ -214,11 +256,42 @@ public class BSPNode
         a.Flip();
         List<Polygon> Half2 = a.DeleteInsides(polyB);
 
+        /*
+        BSPNode tmp = new BSPNode(Half2);
+        Half2 = tmp.DeleteInsides(polyA);
+        */
 
         Half1.AddRange(Half2);
 
         return Half1;
     }
+
+    public static List<Polygon> OneSidedIntersect(List<Polygon> polyA, List<Polygon> polyB)
+    {
+        BSPNode a = new BSPNode(polyA);
+        BSPNode b = new BSPNode(polyB);
+
+        List<Polygon> Half1 = a.DeleteInsides(polyB);
+
+        //Half1 = b.DeleteInsides(H);
+
+
+        /*
+        a.Flip();
+        List<Polygon> layered = a.DeleteInsides(Half1);
+
+        BSPNode theThing = new BSPNode();*/
+        /*
+        BSPNode tmp = new BSPNode(Half2);
+        Half2 = tmp.DeleteInsides(polyA);
+        */
+
+
+        Half1.AddRange(a.ToPolygons());
+
+        return Half1;
+    }
+
 
 
     public static Mesh ReturnMesh(List<Polygon> polys, Vector3 origin, GameObject newObject)

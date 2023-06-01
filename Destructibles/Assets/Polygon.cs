@@ -21,18 +21,13 @@ public sealed class Polygon
         {
             this.vertices.Add(new Vertex(list[i]));
         }
-        Debug.Log(list.Count);
         plane = new CuttingPlane(list[0], list[1], list[2]);
     }
 
 
     public Polygon(Vector3 v1, Vector3 v2, Vector3 v3)
     {
-    List<Vertex> H = new List<Vertex>();
-    H.Add(new Vertex(v1));
-    H.Add(new Vertex(v2));
-    H.Add(new Vertex(v3));
-    vertices = H;
+    vertices = new List<Vertex>{ new Vertex(v1), new Vertex(v2), new Vertex(v3) };
     plane = new CuttingPlane(vertices[0].position, vertices[1].position, vertices[2].position);
     }
 

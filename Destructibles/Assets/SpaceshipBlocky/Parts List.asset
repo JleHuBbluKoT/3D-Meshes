@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005a000bf1f64aa4ea1e897ace2aa495, type: 3}
+  m_Name: Parts List
+  m_EditorClassIdentifier: 
+  cockpit: {fileID: 8824642062741557383, guid: 4777233410927e9468cc6bcbb6d3aa93, type: 3}
+  floor: {fileID: 6381187044147283478, guid: 2e45bb72b9da90a4cb5bcfc74a612127, type: 3}
+  wall: {fileID: 8190169134155651286, guid: ef684d7369f2001408cb58cba67723dc, type: 3}
+  generator: {fileID: 0}
+  o5: {fileID: 0}
+  o6: {fileID: 0}
+  o7: {fileID: 0}
+  o8: {fileID: 0}
+  o9: {fileID: 0}

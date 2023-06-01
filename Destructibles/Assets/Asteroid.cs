@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Asteroid", menuName = "Asteroid")]
-public class Asteroid : ScriptableObject
+public class Asteroid : MonoBehaviour
 {
     public GameObject[,,] cuboids;
     public Vector3Int AsteroidDimensions;
@@ -29,7 +28,7 @@ public class Asteroid : ScriptableObject
         endy = (int)Mathf.Ceil(maxy / chunkSize);
         endz = (int)Mathf.Ceil(maxz / chunkSize);
 
-        Debug.Log(startx + " " + starty + " " + startz + " " + endx + " " + endy + " " + endz);
+        //Debug.Log(startx + " " + starty + " " + startz + " " + endx + " " + endy + " " + endz);
 
         this.DisplacementPoint = new Vector3Int(startx, starty, startz);
         this.AsteroidDimensions = new Vector3Int(endx - startx + 1, endy - starty + 1, endz - startz + 1);
@@ -76,7 +75,7 @@ public class Asteroid : ScriptableObject
         Polygon divider = new Polygon(new Vector3(middlex * chunkSize, -5, -5), new Vector3(middlex * chunkSize, 5, -5), new Vector3(middlex * chunkSize, -5, 5));
 
         for (int i = 0; i < mesh.Count; i++)
-            divider.plane.SplitPolygon(mesh[i], coplanar, coplanar, listFront, listBack);
+            divider.plane.SplitPolygon(mesh[i], listFront, listBack, listFront, listBack);
         //Debug.Log(start + " " + end + "|||" + listFront.Count + " " + listBack.Count);
         //halves.AddRange(BSPCutterX(listFront, middle, end, starty, endy, startz, endz, chunkSize));
         if (listFront.Count != 0)
@@ -126,28 +125,20 @@ public class Asteroid : ScriptableObject
         Polygon divider = new Polygon(new Vector3(-5, middley * chunkSize, -5), new Vector3(5, middley * chunkSize, -5), new Vector3(-5, middley * chunkSize, 5));
 
         for (int i = 0; i < mesh.Count; i++)
-            divider.plane.SplitPolygon(mesh[i], coplanar, coplanar, listFront, listBack);
-
+            divider.plane.SplitPolygon(mesh[i], listFront, listBack, listFront, listBack);
 
         // Back
         if (listBack.Count != 0)
         {
             halves.AddRange(BSPCutterY(listBack, startx, endx, middley, endy, startz, endz, chunkSize));
         }
+        // Front
         if (listFront.Count != 0)
         {
             halves.AddRange(BSPCutterY(listFront, startx, endx, starty, middley, startz, endz, chunkSize));
         }
-        
-
-
-        // Front
-       
-
         return halves;
     }
-
-
 
     public List<List<Polygon>> BSPCutterZ(List<Polygon> mesh, int startx, int endx, int starty, int endy, int startz, int endz, float chunkSize/* List<Polygon> divider*/)
     {
@@ -169,6 +160,7 @@ public class Asteroid : ScriptableObject
 
             this.cuboids[startx - DisplacementPoint.x, starty - DisplacementPoint.y, startz - DisplacementPoint.z] = Instantiate(asteroidChunkPrefab);
             this.cuboids[startx - DisplacementPoint.x, starty - DisplacementPoint.y, startz - DisplacementPoint.z].GetComponent<AsteroidChunk>().AsteroidChunkSetData(mesh, new Vector3Int(startx, starty, startz), this);
+            this.cuboids[startx - DisplacementPoint.x, starty - DisplacementPoint.y, startz - DisplacementPoint.z].transform.SetParent(this.transform);
             halves.Add(mesh);
             return halves;
         }
@@ -184,7 +176,7 @@ public class Asteroid : ScriptableObject
         Polygon divider = new Polygon(new Vector3(-5, -5, middlez * chunkSize), new Vector3(5, -5, middlez * chunkSize), new Vector3(-5, 5, middlez * chunkSize));
 
         for (int i = 0; i < mesh.Count; i++)
-            divider.plane.SplitPolygon(mesh[i], coplanar, coplanar, listFront, listBack);
+            divider.plane.SplitPolygon(mesh[i], listFront, listBack, listFront, listBack);
 
         //Debug.Log(start + " " + end + "|||" + listFront.Count + " " + listBack.Count);
         //halves.AddRange(BSPCutterX(listFront, middle, end, starty, endy, startz, endz, chunkSize));
@@ -192,22 +184,13 @@ public class Asteroid : ScriptableObject
         {
             halves.AddRange(BSPCutterZ(listFront, startx, endx, starty, endy, middlez, endz, chunkSize));
         }
-
         // Back
         if (listBack.Count != 0)
         {
             halves.AddRange(BSPCutterZ(listBack, startx, endx, starty, endy, startz, middlez, chunkSize));
         }
-
-
         return halves;
     }
-
-
-
-
-
-
 
     public void getCubicDimensions(Mesh mesh, out float minx, out float miny, out float minz, out float maxx, out float maxy, out float maxz)
     {

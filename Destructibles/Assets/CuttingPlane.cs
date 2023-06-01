@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class CuttingPlane
 {
-    static float epsilon = 0.00001f;
+    static float epsilon = 0.00003f;
     public Vector3 normal;
     public float w;
 
@@ -133,10 +133,9 @@ public class CuttingPlane
         }   // End switch(polygonType)
     }
 
-    // Возвращает полигоны в списке, для дебага
-    public List<Polygon> SplitPolygonList (Polygon polygon)
+    // Возвращает грани полигона, это нужно для избегания артефактов
+    public void EdgeSearch(Polygon polygon, List<BSPEdge> edges)
     {
-        List<Polygon> ReturnList = new List<Polygon>();
         Type polygonType = 0;
         List<Type> types = new List<Type>();
 
@@ -148,70 +147,18 @@ public class CuttingPlane
             types.Add(type);
         }
 
-        switch (polygonType)
+        for (int i = 0; i < polygon.vertices.Count; i++)
         {
-            case Type.SamePlane:
-                //ReturnList.Add(polygon);
-                break;
+            int j = (i + 1) % polygon.vertices.Count;
+            if (types[i] == Type.SamePlane && types[j] == Type.SamePlane)
+            {
+                Vertex vi = polygon.vertices[i], vj = polygon.vertices[j];
+                edges.Add(new BSPEdge(vi, vj));
+                Debug.Log(vi.position + " " + vj.position);
+                Debug.DrawLine(vi.position, vj.position, Color.red, 10000f);
+            }
+        }
 
-            case Type.Front:
-                break;
-
-            case Type.Back:
-                break;
-
-            case Type.Intersects:
-                {
-                    List<Vertex> f = new List<Vertex>();
-                    List<Vertex> b = new List<Vertex>();
-
-                    for (int i = 0; i < polygon.vertices.Count; i++)
-                    {
-                        int j = (i + 1) % polygon.vertices.Count;
-
-                        Type ti = types[i], tj = types[j];
-
-                        Vertex vi = polygon.vertices[i], vj = polygon.vertices[j];
-
-
-                        if (ti != Type.Back)
-                        {
-                            f.Add(vi);
-                        }
-
-
-                        if (ti != Type.Front)
-                        {
-                            b.Add(vi);
-                        }
-
-                        if ((ti | tj) == Type.Intersects)
-                        {
-
-                            float t = (this.w - Vector3.Dot(this.normal, vi.position)) / Vector3.Dot(this.normal, vj.position - vi.position);
-                            Vertex v = this.Mix(vi, vj, t);
-
-                            f.Add(v);
-                            b.Add(v);
-                        }
-                    }
-
-                    // Собираем треугольники из точек на разных сторонах плоскости
-                    if (f.Count >= 3)
-                    {
-                        ReturnList.AddRange(new Polygon(f, polygon.material).BreakApart()); //Добавляем новый полигон из точек спереди полигона
-                    }
-
-                    if (b.Count >= 3)
-                    {
-                        ReturnList.AddRange(new Polygon(b, polygon.material).BreakApart()); //и новый полигон из точек сзади 
-                    }
-                }
-                break;
-        }   // End switch(polygonType)
-
-        Debug.Log(ReturnList.Count);
-        return ReturnList;
     }
 
 
