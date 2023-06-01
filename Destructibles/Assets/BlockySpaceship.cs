@@ -45,7 +45,7 @@ public class BlockySpaceship : MonoBehaviour
     public void ChangeDetail(GameObject component)
     {
         BlockyComponent comp = component.GetComponent<BlockyComponent>();
-
+        //component.GetComponent<MeshRenderer>().color
     }
 
 
