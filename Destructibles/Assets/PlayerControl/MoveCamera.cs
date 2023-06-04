@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System.Linq;
 
 public class MoveCamera : MonoBehaviour
@@ -20,10 +22,14 @@ public class MoveCamera : MonoBehaviour
 
     public LayerMask spaceshipComponents;
     public LayerMask spaceshipUI;
+    public LayerMask justUI;
 
     public op currentOperation = op.Nothing;
     private GameObject target;
     public GameObject buildingBlock;
+
+    public GraphicRaycaster graphic;
+    private PointerEventData pointerRR = new PointerEventData(null);
 
     public enum op//operation
     {
@@ -56,7 +62,6 @@ public class MoveCamera : MonoBehaviour
 
     private void MovePlayer()
     {
-
         moveDirection = orientation.forward * verticalInput * RunCrouch + orientation.right * horizontalInput + Vector3.up * UpDown * 0.8f ;
         cameraPosition.position = cameraPosition.position + moveDirection * 0.08f;
         transform.position = cameraPosition.position;
@@ -67,35 +72,48 @@ public class MoveCamera : MonoBehaviour
         MovePlayer();
     }
 
+
     private void SelectItem() {
-        Debug.Log("hi");
+        //Debug.Log("hi");
         Vector3 mousePosition = Input.mousePosition;
         mousePosition.z = 100f;
         
         Ray ray = myCamera.ScreenPointToRay(mousePosition);
         RaycastHit hit;
 
-        Physics.Raycast(ray, out hit, maxDistance: 100f, layerMask: spaceshipComponents);
+        // UI check
+        pointerRR.position = Input.mousePosition;
+        List<RaycastResult> results = new List<RaycastResult>();
+        graphic.Raycast(pointerRR, results);
+        if (results.Count > 0) return;
+        // UI check end
 
-        if (currentOperation == op.Build)
+
+        Physics.Raycast(ray, out hit, maxDistance: 200f, layerMask: spaceshipComponents | justUI);
+        if (hit.collider != null &&  hit.collider.gameObject.layer == 5) { Debug.Log("UI got hit"); return; }
+
+        if (currentOperation == op.Build && hit.collider != null)
         {
             Vector3Int neigh = spaceship.GetComponent<BlockySpaceship>().GetAdjacentSpace(hit.point, hit.collider.gameObject);
             spaceship.GetComponent<BlockySpaceship>().AddBigDetail(buildingBlock, neigh.x, neigh.y, neigh.z);
         }
-        if (currentOperation == op.Delete)
+        if (currentOperation == op.Delete && hit.collider != null)
         {
             spaceship.GetComponent<BlockySpaceship>().DeleteDetail(hit.collider.gameObject);
         }
         if (currentOperation == op.Edit)
         {
-            spaceship.GetComponent<BlockySpaceship>().ChangeDetail(hit.collider.gameObject);
-        }
-        //ChangeTarget(hit.collider);
+            ChangeTarget(hit.collider);
+        } 
     }
 
     public void ChangeTarget(Collider go)
     {
         GameObject previousTarget = target;
+        if (previousTarget != null)
+        {
+            spaceship.GetComponent<BlockySpaceship>().DeselectDetail(previousTarget);
+        }
         
         if (go == null)
         {
@@ -103,8 +121,9 @@ public class MoveCamera : MonoBehaviour
         }
         if (go != null)  {
             this.target = go.gameObject;
+            spaceship.GetComponent<BlockySpaceship>().SelectDetail(target);
         }
-        Debug.Log(target);
+        //Debug.Log(target);
     }
 
     public void ChangeBlock(GameObject prefab)
@@ -132,19 +151,9 @@ public class MoveCamera : MonoBehaviour
     {
         Event m_Event = Event.current;
 
-        /*
-        if (m_Event.type == EventType.MouseDown) {
-            BeginDrag();
-        }*/
-
-        if (m_Event.type == EventType.MouseDrag)
-        {
-            currentOperation = op.Drag;
-        }
-
         if (m_Event.type == EventType.MouseUp)
         {
-            Debug.Log(currentOperation);
+            //Debug.Log(currentOperation);
             if (currentOperation != op.Drag)
             {
                 SelectItem();
@@ -154,6 +163,63 @@ public class MoveCamera : MonoBehaviour
                 currentOperation = op.Nothing;
             }
         }
+    }
+
+    public void MoveTargetUp()
+    {
+        Debug.Log(target);
+        if (target != null)
+        {
+            spaceship.GetComponent<BlockySpaceship>().MoveComponent(target, Vector3Int.up);
+        }
+    }
+    public void MoveTargetDown()
+    {
+        if (target != null)
+            spaceship.GetComponent<BlockySpaceship>().MoveComponent(target, Vector3Int.down);
+    }
+    public void MoveTargetForward()
+    {
+
+        if (target != null)
+
+            spaceship.GetComponent<BlockySpaceship>().MoveComponent(target, Vector3Int.forward);
+
+    }
+    public void MoveTargetBack()
+    {
+        if (target != null)
+
+            spaceship.GetComponent<BlockySpaceship>().MoveComponent(target, Vector3Int.back);
+
+    }
+    public void MoveTargetRight()
+    {
+        if (target != null)
+
+            spaceship.GetComponent<BlockySpaceship>().MoveComponent(target, Vector3Int.right);
+
+    }
+    public void MoveTargetLeft()
+    {
+        if (target != null)
+
+            spaceship.GetComponent<BlockySpaceship>().MoveComponent(target, Vector3Int.left);
+    }
+    public void RotateX()
+    {
+        if (target != null)
+        spaceship.GetComponent<BlockySpaceship>().AndRotate(target, 90, 0, 0);
+    }
+    public void RotateY()
+    {
+        if (target != null)
+            spaceship.GetComponent<BlockySpaceship>().AndRotate(target, 0, 90, 0);
+    }
+    public void RotateZ()
+    {
+        if (target != null)
+            spaceship.GetComponent<BlockySpaceship>().AndRotate(target, 0, 0, 90);
     }
 
 

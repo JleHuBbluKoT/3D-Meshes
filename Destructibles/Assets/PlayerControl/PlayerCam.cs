@@ -17,7 +17,9 @@ public class PlayerCam : MonoBehaviour
 
     private void Start()
     {
-
+        
+        //Debug.Log(Vector3. ( new Vector3Int(3, 1, 3), new Vector3Int(1, 0, 1) ));
+        //Debug.Log(Quaternion.Euler(90, 0, 0) * new Vector3Int(3, 1, 3));
         //Cursor.lockState = CursorLockMode.Locked;
         //Cursor.visible = false;
     }
