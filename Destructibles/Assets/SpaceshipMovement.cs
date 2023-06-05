@@ -24,12 +24,20 @@ public class SpaceshipMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-
         MoveSpaceship();
     }
 
     public void MoveSpaceship()
     {
+        /*if (Input.GetKey(KeyCode.Q))
+        {
+            gameObject.transform.Rotate(0, 0.2f, 0);
+        }
+        if (Input.GetKey(KeyCode.E))
+        {
+            gameObject.transform.Rotate(0, -0.2f, 0);
+        }*/
+
         if (Input.GetKey(KeyCode.W))
         {
             foreach (var item in enginesPlusZ)

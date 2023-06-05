@@ -9,7 +9,7 @@ public class BlockyPartsLibrary : ScriptableObject
     public GameObject floor;
     public GameObject wall;
     public GameObject generator;
-    public GameObject o5;
+    public GameObject engine;
     public GameObject o6;
     public GameObject o7;
     public GameObject o8;

@@ -10,6 +10,8 @@ public class BlockySpaceship : MonoBehaviour
     public LayerMask connected;
     public LayerMask disconnected;
     public Rigidbody rb;
+    public SpaceshipMovement spaceshipMover;
+
 
     public BlockyPartsLibrary Library;
     public Vector3Int dimensions = new Vector3Int(15, 10, 15);
@@ -26,7 +28,8 @@ public class BlockySpaceship : MonoBehaviour
         offset = dimensions / 2;
         coreComponent = AddBigDetail(Library.cockpit, 8, 3, 8).GetComponent<BlockyComponent>();
  
-        //AddBigDetail(Library.floor, 12,5, 3);
+        AddBigDetail(Library.engine, 10,6, 10);
+        AddBigDetail(Library.engine, 8, 6, 8);
         UpdateConnections();
     }
     private void Update()
@@ -251,7 +254,7 @@ public class BlockySpaceship : MonoBehaviour
 
     public void UpdateConnections()
     {
-        Debug.Log("Updating components");
+        //Debug.Log("Updating components");
         int failsafe = 0;
 
         List<GameObject> affectedComponents = new List<GameObject>();
@@ -332,8 +335,12 @@ public class BlockySpaceship : MonoBehaviour
     {
         List<Vector3Int> neigh = new List<Vector3Int> {Vector3Int.up, Vector3Int.down, Vector3Int.right, Vector3Int.left, Vector3Int.forward, Vector3Int.back};
         return neigh;
-
-
+    }
+    public List<BlockyComponentInteractive> GetEngines()
+    {
+        List<BlockyComponentInteractive> list = new List<BlockyComponentInteractive>();
+        list.AddRange(this.spaceshipMover.engines);
+        return list;
     }
 
 }
