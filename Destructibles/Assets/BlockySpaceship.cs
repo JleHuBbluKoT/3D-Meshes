@@ -109,7 +109,7 @@ public class BlockySpaceship : MonoBehaviour
             allComponents.Add(component);
             component.transform.parent = this.gameObject.transform;            
             component.transform.position = possibleLocation - offset + ((Vector3)comp.dimensions) / 2f + this.gameObject.transform.position;
-            component.GetComponent<BlockyComponent>().SetVariables(this, possibleLocation.x, possibleLocation.y, possibleLocation.z);
+            component.GetComponent<BlockyComponent>().OnCreation(this, possibleLocation.x, possibleLocation.y, possibleLocation.z);
 
             foreach (var item in component.GetComponent<BlockyComponent>().DesiredSpace())
             {
@@ -168,6 +168,7 @@ public class BlockySpaceship : MonoBehaviour
             this.allComponents.Remove(comp);
             this.invalidComponents.Remove(comp);
             UpdateConnections();
+            comp.GetComponent<BlockyComponent>().OnDelete();
             Destroy(comp);
         }
     }
@@ -180,7 +181,7 @@ public class BlockySpaceship : MonoBehaviour
         if (CanPlaceBig(pos.x, pos.y, pos.z, pos.x + component.dimensions.x, pos.y + component.dimensions.y, pos.z + component.dimensions.z))
         {
             comp.transform.position = pos - offset + ((Vector3)component.dimensions) / 2f + this.gameObject.transform.position;
-            component.GetComponent<BlockyComponent>().SetVariables(this, pos.x, pos.y, pos.z);
+            component.GetComponent<BlockyComponent>().SetVariables(pos.x, pos.y, pos.z);
 
             foreach (var item in component.GetComponent<BlockyComponent>().DesiredSpace())
             {
@@ -212,10 +213,15 @@ public class BlockySpaceship : MonoBehaviour
         component.SetConfigurations(x,y,z);
 
         Vector3Int validPosition = naiveVacantSpaceSearch(component, pos.x, pos.y, pos.z);
-        if (CanPlaceBig(pos.x, pos.y, pos.z, pos.x + component.dimensions.x, pos.y + component.dimensions.y, pos.z + component.dimensions.z))
+        if (CanPlaceBig(validPosition.x, validPosition.y, validPosition.z, validPosition.x + component.dimensions.x, validPosition.y + component.dimensions.y, validPosition.z + component.dimensions.z))
         {
-            comp.transform.position = pos - offset + ((Vector3)component.dimensions) / 2f + this.gameObject.transform.position;
-            component.GetComponent<BlockyComponent>().SetVariables(this, pos.x, pos.y, pos.z);
+            Debug.Log(component.dimensions);
+            Debug.Log(component.gameObject.transform.rotation.eulerAngles);
+            Debug.Log(validPosition);
+            comp.transform.position = validPosition - offset + ((Vector3)component.dimensions) / 2f + this.gameObject.transform.position;
+            //comp.transform.rotation = comp.transform.rotation * Quaternion.Euler(x, y, z);
+
+            component.GetComponent<BlockyComponent>().SetVariables(validPosition.x, validPosition.y, validPosition.z);
 
             foreach (var item in component.GetComponent<BlockyComponent>().DesiredSpace())
             {

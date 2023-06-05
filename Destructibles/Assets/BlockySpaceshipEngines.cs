@@ -5,26 +5,24 @@ using UnityEngine;
 public class BlockySpaceshipEngines : MonoBehaviour
 {
     public GameObject spaceShip;
+    public Vector3 orientation;
+    public float force;
+    public float maxspeedModifier;
     // Start is called before the first frame update
-    void Start()
+
+    public void OnDelete()
     {
-        
+        this.spaceShip.GetComponent<SpaceshipMovement>().RemoveEngine(this);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKey(KeyCode.U) )
-        {
-            ActivateThrust();
-        }
-    }
     public void SetVariables(GameObject _spaceship)
     {
         this.spaceShip = _spaceship;
+        this.spaceShip.GetComponent<SpaceshipMovement>().AddEngine(this);
     }
     public void ActivateThrust()
     {
-        spaceShip.GetComponent<BlockySpaceship>().rb.AddForce(Vector3.up, ForceMode.Force);
+        Debug.Log("trust");
+        spaceShip.GetComponent<BlockySpaceship>().rb.AddForce(orientation * force, ForceMode.Force);
     }
 }

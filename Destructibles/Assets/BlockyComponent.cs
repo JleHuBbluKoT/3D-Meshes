@@ -7,6 +7,7 @@ public class BlockyComponent : MonoBehaviour
     public Vector3Int dimensions;
     public Vector3Int positionInArray;
     public BlockySpaceship spaceShip;
+    public BlockySpaceshipEngines engines;
     public bool Foundation;
     public bool CanDelete;
 
@@ -38,17 +39,19 @@ public class BlockyComponent : MonoBehaviour
         }
         return false;
     }
-
-    public void SetVariables(BlockySpaceship _spaceship, int x, int y, int z)
+    public void OnCreation(BlockySpaceship _spaceship, int x, int y, int z)
     {
-        spaceShip = _spaceship;
-        positionInArray = new Vector3Int(x,y,z);
-
-        BlockySpaceshipEngines engines;
-        if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
+        this.spaceShip = _spaceship;
+        positionInArray = new Vector3Int(x, y, z);
+        if (this.engines != null)
         {
-            engines.spaceShip = this.spaceShip.gameObject;
+            engines.SetVariables(this.spaceShip.gameObject);
         }
+    }
+
+    public void SetVariables(int x, int y, int z)
+    {
+        positionInArray = new Vector3Int(x,y,z);
     }
 
     public List<Vector3Int> DesiredSpace()
@@ -67,6 +70,13 @@ public class BlockyComponent : MonoBehaviour
         return list;
     }
 
+    public void OnDelete()
+    {
+        if (this.engines != null)
+        {
+            engines.OnDelete();
+        }
+    }
     public List<Vector3Int> Neighbours()
     {
         HashSet<Vector3Int> hashset = new HashSet<Vector3Int>();
@@ -110,10 +120,15 @@ public class BlockyComponent : MonoBehaviour
     public Vector3Int SetConfigurations(int x, int y, int z)
     {
         if (!validRotations().Contains(Quaternion.Euler(x, y, z))) return this.dimensions;
-        Vector3 tmp = Quaternion.Euler(x, y, z) * this.dimensions;
         this.dimensions = sillyQuaternion(x,y,z);
-        this.transform.rotation = this.transform.rotation * Quaternion.Euler(x, y, z);
-        Debug.Log(dimensions);
+
+        this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(x,y,z), 90);   
+        
+        if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
+        {
+            engines.orientation = dumbQuaternion(engines.orientation, x, y, z);
+        }
+
         return this.dimensions;
     }
     public Vector3Int sillyQuaternion(int x, int y, int z)
@@ -131,5 +146,22 @@ public class BlockyComponent : MonoBehaviour
             return new Vector3Int(dimensions.y, dimensions.x, dimensions.z);
         }
         return Vector3Int.zero;
+    }
+    public Vector3 dumbQuaternion(Vector3 value, int x, int y, int z)
+    {
+        // Head hurts but it works
+        if (x != 0)
+        {
+            return new Vector3(value.x, value.y < 0 ? value.z : -value.z, value.z < 0 ? -value.y : value.y);
+        }
+        if (y != 0)
+        {
+            return new Vector3(value.x < 0 ? -value.z : value.z, value.y, value.z < 0 ? value.x : -value.x);
+        }
+        if (z != 0)
+        {
+            return new Vector3(value.x < 0 ? value.y : -value.y, value.y < 0 ? -value.x : value.x, value.z);
+        }
+        return Vector3.zero;
     }
 }
