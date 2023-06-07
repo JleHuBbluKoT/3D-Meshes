@@ -15,9 +15,9 @@ MonoBehaviour:
   cockpit: {fileID: 8824642062741557383, guid: 4777233410927e9468cc6bcbb6d3aa93, type: 3}
   floor: {fileID: 6381187044147283478, guid: 2e45bb72b9da90a4cb5bcfc74a612127, type: 3}
   wall: {fileID: 8190169134155651286, guid: ef684d7369f2001408cb58cba67723dc, type: 3}
-  generator: {fileID: 7400154613051855053, guid: 9795fb22e2275fa4098f15f6cf2360d5, type: 3}
+  floorBig: {fileID: 7400154613051855053, guid: 9795fb22e2275fa4098f15f6cf2360d5, type: 3}
   engine: {fileID: 1226882209430007384, guid: a3c41d6f7ee6e1446b8ff5f8e4337be0, type: 3}
-  o6: {fileID: 0}
-  o7: {fileID: 0}
-  o8: {fileID: 0}
-  o9: {fileID: 0}
+  camera: {fileID: 0}
+  tractor: {fileID: 0}
+  light: {fileID: 0}
+  generator: {fileID: 0}

@@ -5,14 +5,13 @@ using UnityEngine;
 public class BlockySpaceshipEngines : BlockyComponentInteractive
 {
     
-    public GameObject spaceShip;
     public Vector3 orientation;
     public float force;
     public float maxspeedModifier;
 
     // Start is called before the first frame update
 
-    public void OnDelete()
+    public override void OnDelete()
     {
 
         if (this.myListRepresentation != null) { this.myListRepresentation.DeleteSelf();}
@@ -21,7 +20,7 @@ public class BlockySpaceshipEngines : BlockyComponentInteractive
 
     public void SetVariables(GameObject _spaceship)
     {
-        this.spaceShip = _spaceship;
+        this.spaceShip = _spaceship.GetComponent<BlockySpaceship>();
         this.spaceShip.GetComponent<SpaceshipMovement>().AddEngine(this);
     }
     
@@ -41,7 +40,7 @@ public class BlockySpaceshipEngines : BlockyComponentInteractive
     public void ActivateThrust()
     {
         Debug.Log("trust");
-        spaceShip.GetComponent<BlockySpaceship>().rb.AddForce(orientation * force, ForceMode.Force);
+        spaceShip.rb.AddForce(orientation * force, ForceMode.Force);
     }
 
 }

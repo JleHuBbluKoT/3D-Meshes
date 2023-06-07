@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class BlockyComponent : MonoBehaviour
 {
+    public BlockyPartsLibrary.detailType type;
+
     public Outline myOutline;
     public Vector3Int dimensions;
     public Vector3Int myRotation;
@@ -79,7 +81,7 @@ public class BlockyComponent : MonoBehaviour
         return list;
     }
 
-    public void OnDelete()
+    public virtual void OnDelete()
     {
         if (this.engines != null)
         {

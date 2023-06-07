@@ -23,6 +23,7 @@ public class SpaceshipGenerator : MonoBehaviour
 
         }
     }
+    
 
     public GameObject SillyRandomDetail()
     {
