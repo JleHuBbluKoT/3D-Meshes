@@ -22,20 +22,52 @@ public class BlockySpaceship : MonoBehaviour
     public List<GameObject> invalidComponents = new List<GameObject>();
     private BlockyComponent coreComponent;
 
+    public ConfigurableScroller scroller;
+    public SpaceshipGenerator spaceshipGenerator;
+
     private void Start()
     {
-        rb = gameObject.GetComponent<Rigidbody>();
         offset = dimensions / 2;
-        coreComponent = AddBigDetail(Library.cockpit, 8, 3, 8).GetComponent<BlockyComponent>();
- 
-        AddBigDetail(Library.engine, 10,6, 10);
-        AddBigDetail(Library.engine, 8, 6, 8);
-        UpdateConnections();
+        ResetSpaceship();
     }
     private void Update()
     {
 
     }
+
+    public void ResetSpaceship()
+    {
+        if (coreComponent != null)
+        {
+            coreComponent.CanDelete = true;
+        }
+        
+        int failsafe = 0;
+        while (allComponents.Count > 0 && failsafe < 100)
+        {
+            failsafe++;
+            DeleteDetail(allComponents[0]);
+        }
+        while (invalidComponents.Count > 0 && failsafe < 100)
+        {
+            failsafe++;
+            DeleteDetail(invalidComponents[0]);
+        }
+        if (coreComponent != null)
+        {
+            DeleteDetail(coreComponent.gameObject);
+        }
+
+        coreComponent = AddBigDetail(Library.cockpit, 8, 3, 8).GetComponent<BlockyComponent>();
+        UpdateConnections();
+    }
+
+    public void ResetAndRandomize()
+    {
+        ResetSpaceship();
+        spaceshipGenerator.SillyRandomFill();
+    }
+
 
     public Vector3Int GetAdjacentSpace(Vector3 point, GameObject component)
     {
@@ -103,8 +135,7 @@ public class BlockySpaceship : MonoBehaviour
     {
         BlockyComponent comp = prefab.GetComponent<BlockyComponent>();
         Vector3Int possibleLocation = naiveVacantSpaceSearch(comp, x, y ,z);
-        //Debug.Log(x + " " + y + " " + z);
-        //Debug.Log(possibleLocation);
+        //Debug.Log(x + " " + y + " " + z); Debug.Log(possibleLocation);
 
         if (CanPlaceBig(possibleLocation.x, possibleLocation.y, possibleLocation.z, possibleLocation.x + comp.dimensions.x, possibleLocation.y + comp.dimensions.y, possibleLocation.z + comp.dimensions.z))
         {
@@ -141,12 +172,8 @@ public class BlockySpaceship : MonoBehaviour
             {
                 for (int z = 0; z < comp.dimensions.z; z++)
                 {
-                    /*
-                    Debug.Log(x + " " + y + " " + z);
-                    Debug.Log(sx + " " + sy + " " + sz);
-                    Debug.Log(comp.dimensions.x + " " + comp.dimensions.y + " " + comp.dimensions.z);
-                    Debug.Log((sx - x) + " " + (sy - y) + " " + (sz - z));
-                    Debug.Log((sx + comp.dimensions.x - x) + " " + (sx + comp.dimensions.y - y) + " " + (sx + comp.dimensions.z - z));*/
+/* Debug.Log(x + " " + y + " " + z); Debug.Log(sx + " " + sy + " " + sz);  Debug.Log(comp.dimensions.x + " " + comp.dimensions.y + " " + comp.dimensions.z); Debug.Log((sx - x)
+ * + " " + (sy - y) + " " + (sz - z)); Debug.Log((sx + comp.dimensions.x - x) + " " + (sx + comp.dimensions.y - y) + " " + (sx + comp.dimensions.z - z));*/
                     if (CanPlaceBig(sx - x, sy - y, sz - z, sx + comp.dimensions.x - x, sy + comp.dimensions.y - y, sz + comp.dimensions.z - z))
                     {
                         return new Vector3Int(sx - x, sy - y, sz - z);
@@ -205,6 +232,7 @@ public class BlockySpaceship : MonoBehaviour
                 componentMatrix[item.x, item.y, item.z] = comp;
             }
         }
+        SelectDetail(comp);
         UpdateConnections();
     }
     public void AndRotate(GameObject comp, int x, int y, int z)
@@ -218,28 +246,17 @@ public class BlockySpaceship : MonoBehaviour
         Vector3Int validPosition = naiveVacantSpaceSearch(component, pos.x, pos.y, pos.z);
         if (CanPlaceBig(validPosition.x, validPosition.y, validPosition.z, validPosition.x + component.dimensions.x, validPosition.y + component.dimensions.y, validPosition.z + component.dimensions.z))
         {
-            Debug.Log(component.dimensions);
-            Debug.Log(component.gameObject.transform.rotation.eulerAngles);
-            Debug.Log(validPosition);
+            //Debug.Log(component.dimensions);
+            //Debug.Log(component.gameObject.transform.rotation.eulerAngles);
+            //Debug.Log(validPosition);
             comp.transform.position = validPosition - offset + ((Vector3)component.dimensions) / 2f + this.gameObject.transform.position;
-            //comp.transform.rotation = comp.transform.rotation * Quaternion.Euler(x, y, z);
-
             component.GetComponent<BlockyComponent>().SetVariables(validPosition.x, validPosition.y, validPosition.z);
 
             foreach (var item in component.GetComponent<BlockyComponent>().DesiredSpace())
             {
                 componentMatrix[item.x, item.y, item.z] = comp;
             }
-            /*
-            CheckConnection(comp);
-            if (component.Connected)
-            {
-                allComponents.Add(comp);
-            }
-            else
-            {
-                invalidComponents.Add(comp);
-            }*/
+            SelectDetail(comp);
         }
         else
         {
@@ -249,8 +266,46 @@ public class BlockySpaceship : MonoBehaviour
                 componentMatrix[item.x, item.y, item.z] = comp;
             }
         }
-        //UpdateConnections();
+        UpdateConnections();
     }
+    public GameObject AddBigRotatedDetail(GameObject prefab, int x, int y, int z, int rx, int ry, int rz)
+    {
+        GameObject component = Instantiate(prefab);
+        BlockyComponent comp = component.GetComponent<BlockyComponent>();
+        comp.dimensions = comp.RotateSeveralTimesDimenstions(rx, ry, rz);
+
+        Vector3Int possibleLocation = naiveVacantSpaceSearch(comp, x, y ,z);
+        Debug.Log(possibleLocation);
+        Debug.Log(comp.dimensions);
+        if (CanPlaceBig(possibleLocation.x, possibleLocation.y, possibleLocation.z, possibleLocation.x + comp.dimensions.x, possibleLocation.y + comp.dimensions.y, possibleLocation.z + comp.dimensions.z))
+        {
+            component.transform.parent = this.gameObject.transform;
+            component.transform.position = possibleLocation - offset + ((Vector3)comp.dimensions) / 2f + this.gameObject.transform.position;
+            component.GetComponent<BlockyComponent>().OnCreation(this, possibleLocation.x, possibleLocation.y, possibleLocation.z);
+
+            foreach (var item in component.GetComponent<BlockyComponent>().DesiredSpace())
+            {
+                componentMatrix[item.x, item.y, item.z] = component;
+            }
+            CheckConnection(component);
+            if (comp.Connected)
+            {
+                allComponents.Add(component);
+            }
+            else
+            {
+                invalidComponents.Add(component);
+            }
+            return component;
+        }
+        else
+        {
+            Destroy(component);
+            return null;
+        }
+        
+    }
+
 
     public void UpdateConnections()
     {
@@ -290,10 +345,16 @@ public class BlockySpaceship : MonoBehaviour
     }
     public void SelectDetail(GameObject comp) {
         comp.GetComponent<Outline>().enabled = true;
+        comp.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineAndSilhouette;
         comp.GetComponent<Outline>().OutlineColor = Color.green;
     }
     public void DeselectDetail(GameObject comp) {
+        comp.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineAll;
         CheckConnection(comp);
+        if (comp.GetComponent<BlockyComponent>().Connected)
+        {
+            comp.GetComponent<Outline>().enabled = false;
+        }
     }
     public void CheckConnection(GameObject comp){
         if (comp.GetComponent<BlockyComponent>().ConnectionCheck()) {
@@ -305,7 +366,6 @@ public class BlockySpaceship : MonoBehaviour
     }
     public void ConnectDetail(GameObject comp) {
         comp.GetComponent<BlockyComponent>().Connected = true;
-        comp.GetComponent<Outline>().enabled = false;
     }
     public void DisconnectDetail(GameObject comp) {
         if (comp.GetComponent<BlockyComponent>().Foundation) {

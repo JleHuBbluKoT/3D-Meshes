@@ -15,5 +15,7 @@ public abstract class BlockyComponentInteractive : MonoBehaviour
     public Sprite myImage;
     public detailType myType;
     public string myName;
+
+    public ConfigurableListElement myListRepresentation;
     public abstract void ComponentAction();
 }

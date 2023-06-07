@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class ConfigurableUIMain : MonoBehaviour
 {
+    public MoveCamera editorCamera;
     public BlockySpaceship spacesip;
     public RectTransform mainPanel;
 

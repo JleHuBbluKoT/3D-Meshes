@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ConfigurableScroller : MonoBehaviour
 {
+    public MoveCamera editorCamera;
+
     public GameObject mainPanel;
     public GameObject scroller;
     public GameObject scrollableSpace;
@@ -14,6 +16,12 @@ public class ConfigurableScroller : MonoBehaviour
     public void Start()
     {
 
+    }
+
+    public void RemoveElement(GameObject element)
+    {
+        scrollableContents.Remove(element);
+        Destroy(element);
     }
 
     public void FillList(List<BlockyComponentInteractive> list)
@@ -34,7 +42,6 @@ public class ConfigurableScroller : MonoBehaviour
             Destroy( scrollableContents[i]);
         }
         scrollableContents.Clear();
-
     }
     public void AddListElement(BlockyComponentInteractive comp)
     {
@@ -43,7 +50,7 @@ public class ConfigurableScroller : MonoBehaviour
         scrollableContents.Add(newUIElement);
         newUIElement.transform.localScale = Vector3.one;
 
-        newUIElement.GetComponent<ConfigurableListElement>().SetValues(comp, this.mainPanel);
+        newUIElement.GetComponent<ConfigurableListElement>().SetValues(comp, this.mainPanel, this);
         //this.scrollableSpace;
     }
 }

@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class BlockyComponent : MonoBehaviour
 {
+    public Outline myOutline;
     public Vector3Int dimensions;
+    public Vector3Int myRotation;
     public Vector3Int positionInArray;
     public BlockySpaceship spaceShip;
     public BlockySpaceshipEngines engines;
@@ -15,6 +17,7 @@ public class BlockyComponent : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        this.gameObject.GetComponent<Outline>().enabled = false;
         if (this.Foundation)  {  Connected = true; }
         Connected = ConnectionCheck();
     }
@@ -46,12 +49,18 @@ public class BlockyComponent : MonoBehaviour
         if (this.engines != null)
         {
             engines.SetVariables(this.spaceShip.gameObject);
+            spaceShip.scroller.AddListElement(engines);
         }
     }
 
     public void SetVariables(int x, int y, int z)
     {
         positionInArray = new Vector3Int(x,y,z);
+
+        if (this.engines != null)
+        {
+            engines.UpdateValues();
+        }
     }
 
     public List<Vector3Int> DesiredSpace()
@@ -77,6 +86,7 @@ public class BlockyComponent : MonoBehaviour
             engines.OnDelete();
         }
     }
+
     public List<Vector3Int> Neighbours()
     {
         HashSet<Vector3Int> hashset = new HashSet<Vector3Int>();
@@ -119,6 +129,7 @@ public class BlockyComponent : MonoBehaviour
     }
     public Vector3Int SetConfigurations(int x, int y, int z)
     {
+        myRotation = new Vector3Int((x + myRotation.x) % 360, (y + myRotation.y) % 360, (z + myRotation.z ) % 360);
         if (!validRotations().Contains(Quaternion.Euler(x, y, z))) return this.dimensions;
         this.dimensions = sillyQuaternion(x,y,z);
 
@@ -131,6 +142,53 @@ public class BlockyComponent : MonoBehaviour
 
         return this.dimensions;
     }
+
+    public Vector3Int RotateSeveralTimesDimenstions(int x, int y, int z)
+    {
+        int failsafe = 0;
+        Vector3Int dims = this.dimensions;
+        x = x % 360;
+        y = y % 360;
+        z = z % 360;
+        while (x > 0 && failsafe < 20)
+        {
+            failsafe++;
+            dims = sillyQuaternion(dims, x, 0, 0);
+            this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(1, 0, 0), 90);
+            if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
+            {
+                engines.orientation = dumbQuaternion(engines.orientation, x, 0, 0);
+            }
+            x -= 90;
+        }
+        while (y > 0 && failsafe < 20)
+        {
+            failsafe++;
+            dims = sillyQuaternion(dims, 0, y, 0);
+            this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(0, 1, 0), 90);
+            if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
+            {
+                engines.orientation = dumbQuaternion(engines.orientation, 0, y, 0);
+            }
+            y -= 90;
+        }
+        while (z > 0 && failsafe < 20)
+        {
+            failsafe++;
+            dims = sillyQuaternion(dims, 0, 0, z);
+            this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(0, 0, 1), 90);
+            if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
+            {
+                engines.orientation = dumbQuaternion(engines.orientation, 0, 0, z);
+            }
+            z -= 90;
+        }
+        Debug.Log(failsafe);
+        this.dimensions = dims;
+        return dims;
+    }
+
+
     public Vector3Int sillyQuaternion(int x, int y, int z)
     {
         if (x != 0)
@@ -147,6 +205,23 @@ public class BlockyComponent : MonoBehaviour
         }
         return Vector3Int.zero;
     }
+    public Vector3Int sillyQuaternion(Vector3Int dims, int x, int y, int z)
+    {
+        if (x != 0)
+        {
+            return new Vector3Int(dims.x, dims.z, dims.y);
+        }
+        if (y != 0)
+        {
+            return new Vector3Int(dims.z, dims.y, dims.x);
+        }
+        if (z != 0)
+        {
+            return new Vector3Int(dims.y, dims.x, dims.z);
+        }
+        return Vector3Int.zero;
+    }
+
     public Vector3 dumbQuaternion(Vector3 value, int x, int y, int z)
     {
         // Head hurts but it works

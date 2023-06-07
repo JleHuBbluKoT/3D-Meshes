@@ -16,6 +16,12 @@ public class ConfigurableUItile : MonoBehaviour
     {
         this.parent = _parent;
         this.positionInArray = _positionInArray;
+
+        for (int i = 0; i < this.transform.childCount; i++)
+        {
+            Transform tmp = this.transform.GetChild(i);
+            tmp.gameObject.GetComponent<ConfigurableUIElementAbstract>().editorCamera = this.parent.editorCamera;
+        }
     }
 
     public void OpenList()

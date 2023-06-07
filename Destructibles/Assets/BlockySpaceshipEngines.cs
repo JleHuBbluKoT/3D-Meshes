@@ -14,6 +14,8 @@ public class BlockySpaceshipEngines : BlockyComponentInteractive
 
     public void OnDelete()
     {
+
+        if (this.myListRepresentation != null) { this.myListRepresentation.DeleteSelf();}
         this.spaceShip.GetComponent<SpaceshipMovement>().RemoveEngine(this);
     }
 
@@ -21,6 +23,14 @@ public class BlockySpaceshipEngines : BlockyComponentInteractive
     {
         this.spaceShip = _spaceship;
         this.spaceShip.GetComponent<SpaceshipMovement>().AddEngine(this);
+    }
+    
+    public void UpdateValues()
+    {
+        if (this.myListRepresentation != null)
+        {
+            this.myListRepresentation.UpdateValues(this);
+        }
     }
 
     public override void ComponentAction()
