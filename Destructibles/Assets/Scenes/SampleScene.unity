@@ -6437,7 +6437,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 50
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -7825,6 +7825,7 @@ MonoBehaviour:
   dimensions: {x: 15, y: 10, z: 15}
   allComponents: []
   invalidComponents: []
+  coreComponent: {fileID: 0}
   scroller: {fileID: 1853029694}
   spaceshipGenerator: {fileID: 1930240447}
 --- !u!54 &1930240445
@@ -7879,6 +7880,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spaceship: {fileID: 1930240444}
   Library: {fileID: 11400000, guid: d364c915f979f1f4282969dce6a9661d, type: 2}
+  thisTags: 000000000100000002000000030000000400000005000000080000000600000007000000
 --- !u!1 &1971493548
 GameObject:
   m_ObjectHideFlags: 0

@@ -21,7 +21,7 @@ public class BlockySpaceship : MonoBehaviour
 
     public List<GameObject> allComponents = new List<GameObject>();
     public List<GameObject> invalidComponents = new List<GameObject>();
-    private BlockyComponent coreComponent;
+    public BlockyComponent coreComponent;
 
     public ConfigurableScroller scroller;
     public SpaceshipGenerator spaceshipGenerator;
@@ -74,6 +74,7 @@ public class BlockySpaceship : MonoBehaviour
     {
         WipeSpaceship();
         spaceshipGenerator.WaveFunctionCollapse();
+        UpdateConnections();
     }
 
 

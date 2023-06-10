@@ -73,7 +73,7 @@ public class SpaceshipSavefile
                 engineOrientation.Add(Vector3.zero);
                 enginePower.Add(0);
             }
-            Debug.Log(list.Count);
+            //Debug.Log(list.Count);
             Connected.Add(list[i].GetComponent<BlockyComponent>().Connected);
         }
 
