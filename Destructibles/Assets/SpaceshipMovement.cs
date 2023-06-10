@@ -127,7 +127,7 @@ public class SpaceshipMovement : MonoBehaviour
     }
     public void AddEngine(BlockySpaceshipEngines engine)
     {
-        Debug.Log("new engine");
+        //Debug.Log("new engine");
         engines.Add(engine);
         RecalculateEngines();
     }

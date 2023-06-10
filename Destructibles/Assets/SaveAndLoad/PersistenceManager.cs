@@ -15,7 +15,7 @@ public class PersistenceManager : MonoBehaviour
     private void Start()
     {
         this.handler = new SavefileHandler(Application.persistentDataPath, filename);
-        this.savefile = handler.Load();
+        NewSavefile(false);
     }
     private void Awake()
     {
@@ -23,13 +23,15 @@ public class PersistenceManager : MonoBehaviour
         {
             Debug.Log("Several instances detected");
         }
-
         instance = this;
     }
 
-    public void NewSavefile()
+    public void NewSavefile(bool newOne = false)
     {
-        this.savefile = new SpaceshipSavefile();
+        if (this.savefile == null | newOne)
+        {
+            this.savefile = new SpaceshipSavefile();
+        }
     }
 
     public void LoadSavefile()
@@ -39,7 +41,7 @@ public class PersistenceManager : MonoBehaviour
         if (this.savefile == null)
         {
             Debug.Log("No save file");
-            NewSavefile();
+            NewSavefile(true);
         }
         this.spaceship.LoadSavefile(savefile);
     }
@@ -47,6 +49,7 @@ public class PersistenceManager : MonoBehaviour
     {
         this.spaceship.SaveSavefile(ref savefile);
         //Debug.Log(savefile.listGameobjectType.Count);
+        //Debug.Log(savefile.listConfigurations.Count);
 
         this.handler.Save(savefile);
     }

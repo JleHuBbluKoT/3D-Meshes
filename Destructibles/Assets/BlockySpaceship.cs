@@ -6,6 +6,7 @@ using System.Linq;
 public class BlockySpaceship : MonoBehaviour
 {
     public WaitForFixedUpdate fixedUpdate = new WaitForFixedUpdate();
+    public PersistenceManager saveManager;
 
     public LayerMask connected;
     public LayerMask disconnected;
@@ -41,7 +42,8 @@ public class BlockySpaceship : MonoBehaviour
         {
             coreComponent.CanDelete = true;
         }
-        
+        //Debug.Log(allComponents.Count);
+        //Debug.Log(invalidComponents.Count);
         int failsafe = 0;
         while (allComponents.Count > 0 && failsafe < 100)
         {
@@ -70,8 +72,8 @@ public class BlockySpaceship : MonoBehaviour
 
     public void ResetAndRandomize()
     {
-        ResetSpaceship();
-        spaceshipGenerator.SillyRandomFill();
+        WipeSpaceship();
+        spaceshipGenerator.WaveFunctionCollapse();
     }
 
 
@@ -149,34 +151,16 @@ public class BlockySpaceship : MonoBehaviour
         if (CanPlaceBig(possibleLocation.x, possibleLocation.y, possibleLocation.z, possibleLocation.x + comp.dimensions.x, possibleLocation.y + comp.dimensions.y, possibleLocation.z + comp.dimensions.z))
         {
             GameObject component = Instantiate(prefab);
-            allComponents.Add(component);
+            
             component.transform.parent = this.gameObject.transform;            
             component.transform.position = possibleLocation - offset + ((Vector3)comp.dimensions) / 2f + this.gameObject.transform.position;
             component.GetComponent<BlockyComponent>().OnCreation(this, possibleLocation.x, possibleLocation.y, possibleLocation.z);
-
-            //Debug.Log("here i am");
-
             foreach (var item in component.GetComponent<BlockyComponent>().DesiredSpace())
             {
                 componentMatrix[item.x, item.y, item.z] = component;
             }
-            CheckConnection(component);
-
-            //Debug.Log("will you send me an angel");
-            if (component.AddComponent<BlockyComponent>().Foundation)
-            {
-                Debug.Log("wowie");
-            }
-
-            if (component.AddComponent<BlockyComponent>().Connected)
-            {
-                Debug.Log("add to list");
-                allComponents.Add(component);
-            }
-            else
-            {
-                invalidComponents.Add(component);
-            }
+            allComponents.Add(component);
+            UpdateConnections();
             return component;
         }
         return null;
@@ -200,9 +184,7 @@ public class BlockySpaceship : MonoBehaviour
                 }
             }
         }
-
         return new Vector3Int(-100, -100, -100);
-
     }
 
     public void DeleteDetail(GameObject comp)
@@ -224,7 +206,7 @@ public class BlockySpaceship : MonoBehaviour
     }
     public void MoveComponent(GameObject comp, Vector3Int direction)
     {
-        allComponents.Remove(comp); invalidComponents.Remove(comp);
+        invalidComponents.Remove(comp);
         BlockyComponent component = comp.GetComponent<BlockyComponent>();
         DeleteDetailFootprint(comp);
         Vector3Int pos = component.positionInArray + direction;
@@ -237,13 +219,7 @@ public class BlockySpaceship : MonoBehaviour
             {
                 componentMatrix[item.x, item.y, item.z] = comp;
             }
-            CheckConnection(comp);
-            if (component.Connected) {
-                allComponents.Add(comp);
-            }
-            else {
-                invalidComponents.Add(comp);
-            }
+            //allComponents.Add(comp);
         }
         else
         {
@@ -295,8 +271,8 @@ public class BlockySpaceship : MonoBehaviour
         comp.dimensions = comp.RotateSeveralTimesDimenstions(rx, ry, rz);
 
         Vector3Int possibleLocation = naiveVacantSpaceSearch(comp, x, y ,z);
-        Debug.Log(possibleLocation);
-        Debug.Log(comp.dimensions);
+        //Debug.Log(possibleLocation);
+        //Debug.Log(comp.dimensions);
         if (CanPlaceBig(possibleLocation.x, possibleLocation.y, possibleLocation.z, possibleLocation.x + comp.dimensions.x, possibleLocation.y + comp.dimensions.y, possibleLocation.z + comp.dimensions.z))
         {
             component.transform.parent = this.gameObject.transform;
@@ -307,15 +283,8 @@ public class BlockySpaceship : MonoBehaviour
             {
                 componentMatrix[item.x, item.y, item.z] = component;
             }
-            CheckConnection(component);
-            if (comp.Connected)
-            {
-                allComponents.Add(component);
-            }
-            else
-            {
-                invalidComponents.Add(component);
-            }
+            allComponents.Add(component);
+            UpdateConnections();
             return component;
         }
         else
@@ -329,19 +298,15 @@ public class BlockySpaceship : MonoBehaviour
 
     public void UpdateConnections()
     {
-        if (coreComponent == null)
-        {
-            return;
-        }
+        if (coreComponent == null) {  return;  }
         //Debug.Log("Updating components");
         int failsafe = 0;
-
         List<GameObject> affectedComponents = new List<GameObject>();
         List<GameObject> connectedComponents = new List<GameObject>();
         //Debug.Log(coreComponent);
         connectedComponents.Add(coreComponent.gameObject);
         
-        while (connectedComponents.Count > 0 && failsafe < 300)
+        while (connectedComponents.Count > 0 && failsafe < 1000)
         {
             failsafe++;
             //Debug.Log(failsafe);
@@ -361,6 +326,8 @@ public class BlockySpaceship : MonoBehaviour
         }
         List<GameObject> list = new List<GameObject>(allComponents);
         invalidComponents = list.Except(affectedComponents).ToList();
+
+        //allComponents = allComponents.Except(invalidComponents).ToList();
 
         for (int i = 0; i < invalidComponents.Count; i++)
         {
@@ -432,32 +399,37 @@ public class BlockySpaceship : MonoBehaviour
     public void LoadSavefile(SpaceshipSavefile savefile)
     {
         WipeSpaceship();
-        Debug.Log(savefile.listGameobjectType.Count);
-        for (int i = 0; i < savefile.listGameobjectType.Count; i++)
+        /*SpaceshipConfiguration conf = savefile.listConfigurations[0];
+
+        Debug.Log(conf.listGameobjectType.Count);
+        for (int i = 0; i < conf.listGameobjectType.Count; i++)
         {
-            Debug.Log(savefile.listGameobjectType[i]);
+            Debug.Log(conf.listGameobjectType[i]);
         }
 
-        for (int i = 0; i < savefile.listGameobjectType.Count; i++)
+        for (int i = 0; i < conf.listGameobjectType.Count; i++)
         {
-            GameObject cmp = AddBigDetail(Library.GetPrefabFromNumber( savefile.listGameobjectType[i]), savefile.listPosition[i].x, savefile.listPosition[i].y, savefile.listPosition[i].z);
-            Debug.Log(cmp);
+            GameObject cmp = AddBigRotatedDetail(Library.GetPrefabFromNumber(conf.listGameobjectType[i]),
+                conf.listPosition[i].x, conf.listPosition[i].y, conf.listPosition[i].z,
+                conf.listRotation[i].x, conf.listRotation[i].y, conf.listRotation[i].z);
+            //Debug.Log(cmp);
             BlockyComponent component = cmp.GetComponent<BlockyComponent>();
-            Debug.Log(component.Foundation);
+            //Debug.Log(component.Foundation);
             if (component.Foundation)
             {
                 Debug.Log("hello");
                 coreComponent = cmp.GetComponent<BlockyComponent>();
                 coreComponent.Foundation = true;
             } 
-        }
+        }*/
+
         UpdateConnections();
     }
 
     public void SaveSavefile(ref SpaceshipSavefile savefile)
     {
         List<GameObject> list = new List<GameObject>(allComponents);
-        list.AddRange(invalidComponents);
+        //list.AddRange(invalidComponents);
         list.Add(coreComponent.gameObject);
         list = list.Distinct().ToList();
         Debug.Log(list.Count);

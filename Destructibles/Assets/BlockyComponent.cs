@@ -6,6 +6,8 @@ public class BlockyComponent : MonoBehaviour
 {
     public BlockyPartsLibrary.detailType type;
 
+    public int energy;
+    public int mass;
     public Outline myOutline;
     public Vector3Int dimensions;
     public Vector3Int myRotation;
@@ -147,6 +149,7 @@ public class BlockyComponent : MonoBehaviour
 
     public Vector3Int RotateSeveralTimesDimenstions(int x, int y, int z)
     {
+        //Debug.Log(this.myRotation + " " + x + " " + y + " " + z);
         int failsafe = 0;
         Vector3Int dims = this.dimensions;
         x = x % 360;
@@ -155,37 +158,41 @@ public class BlockyComponent : MonoBehaviour
         while (x > 0 && failsafe < 20)
         {
             failsafe++;
-            dims = sillyQuaternion(dims, x, 0, 0);
+            dims = sillyQuaternion(dims, 90, 0, 0);
+            this.myRotation = myRotation + new Vector3Int(90, 0, 0);
             this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(1, 0, 0), 90);
             if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
             {
-                engines.orientation = dumbQuaternion(engines.orientation, x, 0, 0);
+                engines.orientation = dumbQuaternion(engines.orientation, 90, 0, 0);
             }
             x -= 90;
         }
         while (y > 0 && failsafe < 20)
         {
             failsafe++;
-            dims = sillyQuaternion(dims, 0, y, 0);
+            dims = sillyQuaternion(dims, 0, 90, 0);
+            this.myRotation = myRotation + new Vector3Int(0,90,0);
             this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(0, 1, 0), 90);
             if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
             {
-                engines.orientation = dumbQuaternion(engines.orientation, 0, y, 0);
+                engines.orientation = dumbQuaternion(engines.orientation, 0, 90, 0);
             }
             y -= 90;
         }
         while (z > 0 && failsafe < 20)
         {
             failsafe++;
-            dims = sillyQuaternion(dims, 0, 0, z);
+            dims = sillyQuaternion(dims, 0, 0, 90);
+            this.myRotation = myRotation + new Vector3Int(0, 0, 90);
             this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(0, 0, 1), 90);
             if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
             {
-                engines.orientation = dumbQuaternion(engines.orientation, 0, 0, z);
+                engines.orientation = dumbQuaternion(engines.orientation, 0, 0, 90);
             }
             z -= 90;
         }
-        Debug.Log(failsafe);
+        //Debug.Log(failsafe);
+        //Debug.Log(this.myRotation + " " + x + " " + y + " " + z);
         this.dimensions = dims;
         return dims;
     }

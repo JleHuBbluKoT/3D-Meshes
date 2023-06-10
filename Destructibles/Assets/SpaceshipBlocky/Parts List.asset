@@ -20,4 +20,4 @@ MonoBehaviour:
   camera: {fileID: 0}
   tractor: {fileID: 0}
   light: {fileID: 0}
-  generator: {fileID: 0}
+  generator: {fileID: 7096422519946035901, guid: 7db57a522351da743aceeda3de381965, type: 3}
