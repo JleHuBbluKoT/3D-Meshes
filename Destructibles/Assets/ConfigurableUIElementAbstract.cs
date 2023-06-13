@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class ConfigurableUIElementAbstract : MonoBehaviour
 {
-
+    public ConfigurableUItile masterTile;
     public GameObject referencedComponent;
     public MoveCamera editorCamera;
     public abstract void OnButtonPress();

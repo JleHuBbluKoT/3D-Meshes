@@ -11,9 +11,10 @@ public class BlockyComponent : MonoBehaviour
     public Outline myOutline;
     public Vector3Int dimensions;
     public Vector3Int myRotation;
+    public Vector3 orientation;
     public Vector3Int positionInArray;
     public BlockySpaceship spaceShip;
-    public BlockySpaceshipEngines engines;
+    public BlockyComponentInteractive interactible;
     public bool Foundation;
     public bool CanDelete;
 
@@ -50,10 +51,10 @@ public class BlockyComponent : MonoBehaviour
     {
         this.spaceShip = _spaceship;
         positionInArray = new Vector3Int(x, y, z);
-        if (this.engines != null)
+        if (this.interactible != null)
         {
-            engines.SetVariables(this.spaceShip.gameObject);
-            spaceShip.scroller.AddListElement(engines);
+            interactible.DetailVariables();
+            spaceShip.scroller.AddListElement(interactible);
         }
     }
 
@@ -61,9 +62,9 @@ public class BlockyComponent : MonoBehaviour
     {
         positionInArray = new Vector3Int(x,y,z);
 
-        if (this.engines != null)
+        if (this.interactible != null)
         {
-            engines.UpdateValues();
+            interactible.DetailUpdate();
         }
     }
 
@@ -85,9 +86,9 @@ public class BlockyComponent : MonoBehaviour
 
     public virtual void OnDelete()
     {
-        if (this.engines != null)
+        if (this.interactible != null)
         {
-            engines.OnDelete();
+            interactible.DetailDelete();
         }
     }
 
@@ -139,11 +140,7 @@ public class BlockyComponent : MonoBehaviour
 
         this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(x,y,z), 90);   
         
-        if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
-        {
-            engines.orientation = dumbQuaternion(engines.orientation, x, y, z);
-        }
-
+        this.orientation = dumbQuaternion(this.orientation, x, y, z);
         return this.dimensions;
     }
 
@@ -161,10 +158,7 @@ public class BlockyComponent : MonoBehaviour
             dims = sillyQuaternion(dims, 90, 0, 0);
             this.myRotation = myRotation + new Vector3Int(90, 0, 0);
             this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(1, 0, 0), 90);
-            if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
-            {
-                engines.orientation = dumbQuaternion(engines.orientation, 90, 0, 0);
-            }
+            this.orientation = dumbQuaternion(orientation, x, y, z);
             x -= 90;
         }
         while (y > 0 && failsafe < 20)
@@ -173,10 +167,7 @@ public class BlockyComponent : MonoBehaviour
             dims = sillyQuaternion(dims, 0, 90, 0);
             this.myRotation = myRotation + new Vector3Int(0,90,0);
             this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(0, 1, 0), 90);
-            if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
-            {
-                engines.orientation = dumbQuaternion(engines.orientation, 0, 90, 0);
-            }
+            this.orientation = dumbQuaternion(orientation, x, y, z);
             y -= 90;
         }
         while (z > 0 && failsafe < 20)
@@ -185,10 +176,7 @@ public class BlockyComponent : MonoBehaviour
             dims = sillyQuaternion(dims, 0, 0, 90);
             this.myRotation = myRotation + new Vector3Int(0, 0, 90);
             this.gameObject.transform.RotateAround(Vector3Int.zero, new Vector3Int(0, 0, 1), 90);
-            if (this.TryGetComponent<BlockySpaceshipEngines>(out engines))
-            {
-                engines.orientation = dumbQuaternion(engines.orientation, 0, 0, 90);
-            }
+            this.orientation = dumbQuaternion(orientation, x, y, z);
             z -= 90;
         }
         //Debug.Log(failsafe);

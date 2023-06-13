@@ -197,7 +197,7 @@ wavefunction.Nothing, wavefunction.Wall, wavefunction.Floor, wavefunction.Genera
                 lowEntropyCells.Add(neigh);
             }
         }
-        Debug.Log("placed");
+        //Debug.Log("placed");
     }
 
     public void WallFootprint(GameObject prefab, int x, int y, int z)
@@ -247,7 +247,7 @@ wavefunction.Nothing, wavefunction.Wall, wavefunction.Floor, wavefunction.Genera
                 lowEntropyCells.Add(neigh);
             }
         }
-        Debug.Log("placed");
+       //Debug.Log("placed");
     }
 
     public void FloorFootprint(GameObject prefab, int x, int y, int z)
@@ -269,11 +269,10 @@ wavefunction.Nothing, wavefunction.Wall, wavefunction.Floor, wavefunction.Genera
                 {
                     matrix[neigh.x, neigh.y, neigh.z] = new List<wavefunction> { wavefunction.Nothing };
                 }
-
                 lowEntropyCells.Add(neigh);
             } 
         }
-        Debug.Log("placed");
+        //Debug.Log("placed");
     }
 
 

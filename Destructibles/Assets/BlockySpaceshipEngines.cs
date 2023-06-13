@@ -4,27 +4,24 @@ using UnityEngine;
 
 public class BlockySpaceshipEngines : BlockyComponentInteractive
 {
-    
-    public Vector3 orientation;
     public float force;
     public float maxspeedModifier;
 
     // Start is called before the first frame update
 
-    public override void OnDelete()
+    public override void DetailDelete()
     {
 
         if (this.myListRepresentation != null) { this.myListRepresentation.DeleteSelf();}
-        this.spaceShip.GetComponent<SpaceshipMovement>().RemoveEngine(this);
+        this.spaceShip.spaceshipMover.RemoveEngine(this);
     }
 
-    public void SetVariables(GameObject _spaceship)
+    public override void DetailVariables()
     {
-        this.spaceShip = _spaceship.GetComponent<BlockySpaceship>();
-        this.spaceShip.GetComponent<SpaceshipMovement>().AddEngine(this);
+        this.spaceShip.spaceshipMover.AddEngine(this);
     }
     
-    public void UpdateValues()
+    public override void DetailUpdate()
     {
         if (this.myListRepresentation != null)
         {

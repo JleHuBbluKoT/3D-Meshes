@@ -24,7 +24,6 @@ public class SpaceshipSavefile
     // the other stuff
     public List<bool> Connected;
 
-
     public SpaceshipSavefile()
     {
         configurationLength = new List<int>();
@@ -43,9 +42,15 @@ public class SpaceshipSavefile
         Connected = new List<bool>();
     }
 
-    public void BreakGameobjects(List<GameObject> list) {
+    public void BreakGameobjects(List<GameObject> list, bool wipeSave = false) {
         blockID.Clear();
         blockName.Clear();
+        if (wipeSave)
+        {
+            ClearList();
+        }
+
+
         Array fff = Enum.GetValues(typeof(BlockyPartsLibrary.detailType));
         for (int i = 0; i < fff.Length; i++)
         {
@@ -82,7 +87,20 @@ public class SpaceshipSavefile
 
     public void ClearList()
     {
-        //listConfigurations.Clear();
+        configurationLength = new List<int>();
+        blockID = new List<int>();
+        blockName = new List<string>();
+
+        listGameobjectType = new List<int>();
+        listPosition = new List<Vector3Int>();
+        listRotation = new List<Vector3Int>();
+        listMass = new List<int>();
+        listEnergy = new List<int>();
+
+        engineOrientation = new List<Vector3>();
+        enginePower = new List<float>();
+
+        Connected = new List<bool>();
     }
 }
 

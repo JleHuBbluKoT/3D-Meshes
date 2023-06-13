@@ -36,6 +36,12 @@ public class ConfigurableUIConnector : ConfigurableUIElementAbstract
             Debug.Log("Found list element");
             editorCamera.DeselectItemUI();
             this.GetComponent<Image>().color = NormalColor;
+            if (masterTile != null)
+            {
+                //Debug.Log(otherUI.referencedComponent);
+                masterTile.GetConnectorData(this, otherUI.referencedComponent);
+                
+            }
             return true;
         }
         return false;

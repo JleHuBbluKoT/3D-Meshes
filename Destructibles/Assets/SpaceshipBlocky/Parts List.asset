@@ -17,7 +17,7 @@ MonoBehaviour:
   wall: {fileID: 8190169134155651286, guid: ef684d7369f2001408cb58cba67723dc, type: 3}
   floorBig: {fileID: 7400154613051855053, guid: 9795fb22e2275fa4098f15f6cf2360d5, type: 3}
   engine: {fileID: 1226882209430007384, guid: a3c41d6f7ee6e1446b8ff5f8e4337be0, type: 3}
-  camera: {fileID: 0}
+  camera: {fileID: 2244736517495330059, guid: 233b5a77282c5db43a009eae4dd45eca, type: 3}
   tractor: {fileID: 0}
   light: {fileID: 0}
   generator: {fileID: 7096422519946035901, guid: 7db57a522351da743aceeda3de381965, type: 3}

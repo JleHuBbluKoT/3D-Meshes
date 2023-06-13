@@ -12,6 +12,7 @@ public class BlockySpaceship : MonoBehaviour
     public LayerMask disconnected;
     public Rigidbody rb;
     public SpaceshipMovement spaceshipMover;
+    public SpaceshipCameras spaceshipCameras;
 
 
     public BlockyPartsLibrary Library;
@@ -30,10 +31,6 @@ public class BlockySpaceship : MonoBehaviour
     {
         offset = dimensions / 2;
         ResetSpaceship();
-    }
-    private void Update()
-    {
-
     }
 
     public void WipeSpaceship()
@@ -397,16 +394,47 @@ public class BlockySpaceship : MonoBehaviour
         return list;
     }
 
+    public List<BlockyComponentInteractive> GetCameras()
+    {
+        List<BlockyComponentInteractive> list = new List<BlockyComponentInteractive>();
+        list.AddRange(this.spaceshipCameras.cameras);
+        return list;
+    }
+
     public void LoadSavefile(SpaceshipSavefile savefile)
     {
         WipeSpaceship();
-        /*SpaceshipConfiguration conf = savefile.listConfigurations[0];
-
-        Debug.Log(conf.listGameobjectType.Count);
-        for (int i = 0; i < conf.listGameobjectType.Count; i++)
+        for (int i = 0; i < savefile.configurationLength[0]; i++)
         {
-            Debug.Log(conf.listGameobjectType[i]);
+            GameObject cmp = AddBigRotatedDetail(Library.GetPrefabFromNumber(savefile.listGameobjectType[i]),
+                savefile.listPosition[i].x, savefile.listPosition[i].y, savefile.listPosition[i].z,
+                savefile.listRotation[i].x, savefile.listRotation[i].y, savefile.listRotation[i].z);
+            BlockyComponent component = cmp.GetComponent<BlockyComponent>();
+            if (component.Foundation)
+            {
+                Debug.Log("hello");
+                coreComponent = cmp.GetComponent<BlockyComponent>();
+                coreComponent.Foundation = true;
+            }
         }
+        UpdateConnections();
+    }
+
+    public void SaveSavefile(ref SpaceshipSavefile savefile)
+    {
+        List<GameObject> list = new List<GameObject>(allComponents);
+        list.Add(coreComponent.gameObject);
+        list = list.Distinct().ToList();
+        Debug.Log(list.Count);
+        savefile.BreakGameobjects(list, true);
+    }
+
+
+
+}
+
+/*
+ * 
 
         for (int i = 0; i < conf.listGameobjectType.Count; i++)
         {
@@ -422,24 +450,8 @@ public class BlockySpaceship : MonoBehaviour
                 coreComponent = cmp.GetComponent<BlockyComponent>();
                 coreComponent.Foundation = true;
             } 
-        }*/
+        }
 
-        UpdateConnections();
-    }
-
-    public void SaveSavefile(ref SpaceshipSavefile savefile)
-    {
-        List<GameObject> list = new List<GameObject>(allComponents);
-        //list.AddRange(invalidComponents);
-        list.Add(coreComponent.gameObject);
-        list = list.Distinct().ToList();
-        Debug.Log(list.Count);
-        savefile.BreakGameobjects(list);
-    }
-
-
-
-}
 
 /* This code is no longer needed
 public void AddDetail(GameObject prefab, int x, int y, int z)

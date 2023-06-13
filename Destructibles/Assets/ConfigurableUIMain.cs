@@ -47,6 +47,7 @@ public class ConfigurableUIMain : MonoBehaviour
 
     public void SetSizeAndPosition(Vector2Int pos, GameObject UIElement)
     {
+        Debug.Log(UIElement);
         RectTransform uirect = UIElement.GetComponent<RectTransform>();
 
         uirect.anchoredPosition = Vector2.zero + new Vector2(tileSize.x, -tileSize.y) / 2 + new Vector2(tileSize.x * pos.x, tileSize.y * pos.y) ;
@@ -56,9 +57,29 @@ public class ConfigurableUIMain : MonoBehaviour
         UIElement.GetComponent<ConfigurableUItile>().SetVariables(this, pos);
     }
 
+    public void ReplaceTile(ConfigurableUItile original, GameObject UIElement)
+    {
+        GameObject newUIelement = Instantiate(UIElement);
+        newUIelement.transform.SetParent(this.transform);
+        
+
+        RectTransform uirect = newUIelement.GetComponent<RectTransform>();
+        uirect.anchoredPosition = Vector2.zero + new Vector2(tileSize.x, -tileSize.y) / 2 + new Vector2(tileSize.x * original.positionInArray.x, tileSize.y * original.positionInArray.y);
+        uirect.sizeDelta = new Vector2(tileSize.x, tileSize.y) - padding;
+
+        newUIelement.transform.localScale = Vector3.one;
+
+        newUIelement.GetComponent<ConfigurableUItile>().SetVariables(this, original.positionInArray);
+        Destroy(original.gameObject);
+    }
+
+
     public void ShowEnginesFromSpaceship()
     {
         this.scroller.FillList(spacesip.GetEngines());
     }
-
+    public void ShowCamerasFromSpaceship()
+    {
+        this.scroller.FillList(spacesip.GetCameras());
+    }
 }

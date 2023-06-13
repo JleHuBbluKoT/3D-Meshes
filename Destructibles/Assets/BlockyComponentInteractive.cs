@@ -10,4 +10,7 @@ public abstract class BlockyComponentInteractive : BlockyComponent
 
     public ConfigurableListElement myListRepresentation;
     public abstract void ComponentAction();
+    public abstract void DetailVariables();
+    public abstract void DetailUpdate();
+    public abstract void DetailDelete();
 }
