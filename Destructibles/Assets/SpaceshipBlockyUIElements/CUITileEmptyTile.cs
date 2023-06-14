@@ -8,6 +8,15 @@ public class CUITileEmptyTile : ConfigurableUItile
     {
         this.parent = _parent;
         this.positionInArray = _positionInArray;
+
+        for (int i = 0; i < this.transform.childCount; i++)
+        {
+            ConfigurableUIConnector conn;
+            if (this.transform.GetChild(i).TryGetComponent(out conn))
+            {
+                conn.editorCamera = this.parent.editorCamera;
+            }
+        }
     }
     public void ReplaceSelf(GameObject otherUIelement)
     {

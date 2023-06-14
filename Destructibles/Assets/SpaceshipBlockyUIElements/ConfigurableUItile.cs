@@ -41,4 +41,16 @@ public abstract class ConfigurableUItile : MonoBehaviour
     {
         parent.ShowEnginesFromSpaceship();
     }
+    public virtual void DynamicUIAdjustments()
+    {
+        return;
+    }
+    public virtual void GameStarted()
+    {
+        return;
+    }
+    public virtual void BackToRedactor()
+    {
+        return;
+    }
 }

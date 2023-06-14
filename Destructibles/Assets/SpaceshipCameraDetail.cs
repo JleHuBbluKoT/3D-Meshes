@@ -12,6 +12,7 @@ public class SpaceshipCameraDetail : BlockyComponentInteractive
     public GameObject associatedComponent;
     public RenderTexture myRenderTexture;
     public Camera myCamera;
+    public Light myLight;
 
     public override void DetailDelete() {
         if (this.myListRepresentation != null) { this.myListRepresentation.DeleteSelf(); }
@@ -37,7 +38,6 @@ public class SpaceshipCameraDetail : BlockyComponentInteractive
 
     public void SetRotation(float p, float y)
     {
-        Vector3 rotationVector = orientation;
         Vector3 finalAngle;
         if (orientation.y != 0)
         {
@@ -48,11 +48,13 @@ public class SpaceshipCameraDetail : BlockyComponentInteractive
         }
         else
         {
-            Vector3 vectorOne = directions[orientation][0] * Mathf.Lerp(-10, 10, p);
-            Vector3 vectorTwo = Vector3.up * Mathf.Lerp(-10, 10, y);
-            finalAngle = rotationVector + vectorOne + vectorTwo;
+            float theta = Mathf.PI * (Mathf.Lerp(-80, 80, p) + directions[orientation] ) / 180f;
+            float phi = Mathf.PI * Mathf.Lerp(-80, 80, y) / 180f;
+            Vector3 vectorOne = new Vector3(Mathf.Sin(theta) * Mathf.Cos(phi), Mathf.Sin(phi), Mathf.Cos(theta) * Mathf.Cos(phi));
+            finalAngle = vectorOne;
         }
         this.myCamera.transform.LookAt(this.transform.position + finalAngle);
+        this.myLight.transform.rotation = myCamera.transform.rotation;
         //Debug.DrawLine(myCamera.transform.position, myCamera.transform.position + finalAngle, color: Color.red, 10f);
     }
 
@@ -60,14 +62,14 @@ public class SpaceshipCameraDetail : BlockyComponentInteractive
         throw new System.NotImplementedException();
     }
 
-    public Dictionary<Vector3, Vector3[]> directions = new Dictionary<Vector3, Vector3[]>
+    public Dictionary<Vector3, int> directions = new Dictionary<Vector3, int>
     {
-        {Vector3.forward, new Vector3[]{Vector3.right, Vector3.up } },
-        {Vector3.back, new Vector3[]{Vector3.left, Vector3.up } },
-        {Vector3.right, new Vector3[]{Vector3.back, Vector3.up } },
-        {Vector3.left, new Vector3[]{Vector3.forward, Vector3.up } },
-        {Vector3.up, new Vector3[]{Vector3.forward, Vector3.up } },
-        {Vector3.down, new Vector3[]{Vector3.forward, Vector3.up } },
+        {Vector3.forward, 0},
+        {Vector3.back, 180},
+        {Vector3.right, 90 },
+        {Vector3.left, 270 },
+        {Vector3.up, 0 },
+        {Vector3.down, 0 },
     };
 }
 

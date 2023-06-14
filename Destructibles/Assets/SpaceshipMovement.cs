@@ -24,61 +24,25 @@ public class SpaceshipMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        MoveSpaceship();
+        if (spaceship.GameStarted)
+        {
+            if (Input.GetKey(KeyCode.Q))
+            {
+                gameObject.transform.Rotate(0, 0.2f, 0);
+            }
+            if (Input.GetKey(KeyCode.E))
+            {
+                gameObject.transform.Rotate(0, -0.2f, 0);
+            }
+            MoveSpaceship();
+        }
     }
 
     public void MoveSpaceship()
     {
-        /*if (Input.GetKey(KeyCode.Q))
+        foreach (var engine in engines)
         {
-            gameObject.transform.Rotate(0, 0.2f, 0);
-        }
-        if (Input.GetKey(KeyCode.E))
-        {
-            gameObject.transform.Rotate(0, -0.2f, 0);
-        }*/
-
-        if (Input.GetKey(KeyCode.W))
-        {
-            foreach (var item in enginesPlusZ)
-            {
-                item.ActivateThrust();
-            }
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            foreach (var item in enginesMinusZ)
-            {
-                item.ActivateThrust();
-            }
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            foreach (var item in enginesMinusX)
-            {
-                item.ActivateThrust();
-            }
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            foreach (var item in enginesPlusX)
-            {
-                item.ActivateThrust();
-            }
-        }
-        if (Input.GetKey(KeyCode.Space))
-        {
-            foreach (var item in enginesPlusY)
-            {
-                item.ActivateThrust();
-            }
-        }
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            foreach (var item in enginesMinusY)
-            {
-                item.ActivateThrust();
-            }
+            engine.ActivateThrust();
         }
     }
 
@@ -143,3 +107,55 @@ public class SpaceshipMovement : MonoBehaviour
         }
     }
 }
+/*if (Input.GetKey(KeyCode.Q))
+{
+    gameObject.transform.Rotate(0, 0.2f, 0);
+}
+if (Input.GetKey(KeyCode.E))
+{
+    gameObject.transform.Rotate(0, -0.2f, 0);
+
+if (Input.GetKey(KeyCode.W))
+{
+    foreach (var item in enginesPlusZ)
+    {
+        item.ActivateThrust();
+    }
+}
+if (Input.GetKey(KeyCode.S))
+{
+    foreach (var item in enginesMinusZ)
+    {
+        item.ActivateThrust();
+    }
+}
+if (Input.GetKey(KeyCode.A))
+{
+    foreach (var item in enginesMinusX)
+    {
+        item.ActivateThrust();
+    }
+}
+if (Input.GetKey(KeyCode.D))
+{
+    foreach (var item in enginesPlusX)
+    {
+        item.ActivateThrust();
+    }
+}
+if (Input.GetKey(KeyCode.Space))
+{
+    foreach (var item in enginesPlusY)
+    {
+        item.ActivateThrust();
+    }
+}
+if (Input.GetKey(KeyCode.LeftShift))
+{
+    foreach (var item in enginesMinusY)
+    {
+        item.ActivateThrust();
+    }
+}
+}*/
+

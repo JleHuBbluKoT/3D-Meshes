@@ -5,6 +5,7 @@ using System.Linq;
 
 public class BlockySpaceship : MonoBehaviour
 {
+    public bool GameStarted;
     public WaitForFixedUpdate fixedUpdate = new WaitForFixedUpdate();
     public PersistenceManager saveManager;
 
@@ -27,10 +28,16 @@ public class BlockySpaceship : MonoBehaviour
     public ConfigurableScroller scroller;
     public SpaceshipGenerator spaceshipGenerator;
 
+    public ConfigurableUIMain redactorUI;
+    public ConfigurableUIMain inGameUI;
+    public GameObject toolPanelUI;
+
     private void Start()
     {
         offset = dimensions / 2;
         ResetSpaceship();
+        redactorUI.FillUI();
+
     }
 
     public void WipeSpaceship()
@@ -62,6 +69,7 @@ public class BlockySpaceship : MonoBehaviour
 
     public void ResetSpaceship()
     {
+        ResetPosition();
         WipeSpaceship();
         coreComponent = AddBigDetail(Library.cockpit, 8, 3, 8).GetComponent<BlockyComponent>();
         UpdateConnections();
@@ -430,6 +438,39 @@ public class BlockySpaceship : MonoBehaviour
     }
 
 
+    public void ResetPosition() {
+        this.gameObject.transform.position = new Vector3(0, 5, 0);
+        this.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+        this.rb.freezeRotation = true;
+    }
+
+    public void UIGameStart()
+    {
+        inGameUI.GetComponent<RectTransform>().anchoredPosition = inGameUI.active;
+        redactorUI.MoveTilesToOtherInstance(inGameUI);
+
+        redactorUI.GetComponent<RectTransform>().anchoredPosition = redactorUI.inactive;
+        toolPanelUI.GetComponent<RectTransform>().anchoredPosition = new Vector3(Mathf.Abs(toolPanelUI.GetComponent<RectTransform>().anchoredPosition.x), toolPanelUI.GetComponent<RectTransform>().anchoredPosition.y, 0);
+        redactorUI.scroller.GetComponent<RectTransform>().anchoredPosition = redactorUI.scroller.inactive;
+
+        ResetPosition();
+        GameStarted = true;
+        // Generate map
+    }
+
+    public void UIGameEnd()
+    {
+        inGameUI.GetComponent<RectTransform>().anchoredPosition = inGameUI.inactive;
+        //inGameUI.MoveTilesToOtherInstance(redactorUI);
+
+        redactorUI.GetComponent<RectTransform>().anchoredPosition = redactorUI.active;
+        toolPanelUI.GetComponent<RectTransform>().anchoredPosition = new Vector3(-Mathf.Abs(toolPanelUI.GetComponent<RectTransform>().anchoredPosition.x), toolPanelUI.GetComponent<RectTransform>().anchoredPosition.y, 0);
+        redactorUI.scroller.GetComponent<RectTransform>().anchoredPosition = redactorUI.scroller.active;
+
+        ResetPosition();
+        GameStarted = false;
+        // Generate map
+    }
 
 }
 

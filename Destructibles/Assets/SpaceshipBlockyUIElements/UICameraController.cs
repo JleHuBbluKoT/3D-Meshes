@@ -18,7 +18,7 @@ public class UICameraController : ConfigurableUItile
     private RectTransform rect;
     private int padding = 5;
 
-    public void DynamicUIAdjustments()
+    public override void DynamicUIAdjustments()
     {
         rect = this.GetComponent<RectTransform>();
         float tmp = Mathf.Min(rect.sizeDelta.x, rect.sizeDelta.y) - padding * 2;
@@ -38,7 +38,7 @@ public class UICameraController : ConfigurableUItile
         camImage.sizeDelta = new Vector2(width, width); camImage.anchoredPosition = new Vector2(tinyW + padding, 0 - padding);
         camB.sizeDelta = new Vector2(width, width); camB.anchoredPosition = new Vector2(tinyW + padding, 0 - padding);
         flButton.sizeDelta = new Vector2(tinyW, tinyW); flButton.anchoredPosition = new Vector2(0 + padding, -width - padding);
-        connector.sizeDelta = new Vector2(tinyW * 3, tinyW * 3); connector.anchoredPosition = new Vector2(tinyW + tinyW + padding, -tinyW - padding);
+        connector.sizeDelta = new Vector2(tinyW, tinyW); connector.anchoredPosition = new Vector2(tinyW + padding, - padding);
     }
 
 

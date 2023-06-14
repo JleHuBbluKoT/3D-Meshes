@@ -13,6 +13,8 @@ public class ConfigurableScroller : MonoBehaviour
 
     public GameObject listElementPrefab;
 
+    public Vector2 active;
+    public Vector2 inactive;
     public void Start()
     {
 
