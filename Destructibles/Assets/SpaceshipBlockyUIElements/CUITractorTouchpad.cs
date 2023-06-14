@@ -45,4 +45,15 @@ public class CUITractorTouchpad : ConfigurableUItile
         cTransform.anchoredPosition = new Vector2(width + 5, - 5);
     }
 
+    public override BlockyComponentInteractive[] ToSavefileData()
+    {
+        BlockyComponentInteractive[] myComp = new BlockyComponentInteractive[5];
+        return myComp;
+    }
+    public override void LoadDataFromFile(List<int> inter)
+    {
+        return;
+    }
+
+
 }

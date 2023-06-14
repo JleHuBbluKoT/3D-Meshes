@@ -23,6 +23,8 @@ public class ConfigurableUIMain : MonoBehaviour
     public Vector2 active;
     public Vector2 inactive;
 
+    public UITileLibrary lib;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -121,4 +123,40 @@ public class ConfigurableUIMain : MonoBehaviour
         }
         uiGrid = new GameObject[dimensions.x, dimensions.y];
     }
+
+    public List<ConfigurableUItile> GetMyTiles()
+    {
+        List<ConfigurableUItile> list = new List<ConfigurableUItile>();
+        for (int i = 0; i < dimensions.x; i++)
+        {
+            for (int j = 0; j < dimensions.y; j++)
+            {
+                list.Add(uiGrid[i,j].GetComponent<ConfigurableUItile>());
+            }
+        }
+        return list;
+    }
+
+    public void LoadMyTiles(SpaceshipSavefile savefile)
+    {
+        WipeTable();
+        for (int i = 0; i < savefile.UItile.Count; i++)
+        {
+            Debug.Log(savefile.assocDetails.Count);
+            GameObject newUIelement = Instantiate(lib.GetPrefabFromNumber(savefile.UItile[i]));
+            newUIelement.transform.SetParent(this.transform);
+            Vector2Int pos = new Vector2Int(i / dimensions.x, i % dimensions.x);
+            this.uiGrid[pos.x, pos.y] = newUIelement;
+            SetSizeAndPosition(new Vector2Int(pos.x, pos.y), newUIelement);
+
+            List<int> values = new List<int>();
+            values.Add(savefile.assocDetails[i * 5 + 0]); values.Add(savefile.assocDetails[i * 5 + 1]);
+            values.Add(savefile.assocDetails[i * 5 + 2]); values.Add(savefile.assocDetails[i * 5 + 3]);
+            values.Add(savefile.assocDetails[i * 5 + 4]);
+
+            newUIelement.GetComponent<ConfigurableUItile>().LoadDataFromFile(values);
+        }
+
+    }
+
 }

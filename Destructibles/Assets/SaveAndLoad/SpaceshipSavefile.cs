@@ -24,6 +24,9 @@ public class SpaceshipSavefile
     // the other stuff
     public List<bool> Connected;
 
+    public List<UITileLibrary.detailType> UItile;
+    public List<int> assocDetails;
+
     public SpaceshipSavefile()
     {
         configurationLength = new List<int>();
@@ -40,6 +43,9 @@ public class SpaceshipSavefile
         enginePower = new List<float>();
 
         Connected = new List<bool>();
+
+        UItile = new List<UITileLibrary.detailType>();
+        assocDetails = new List<int>();
     }
 
     public void BreakGameobjects(List<GameObject> list, bool wipeSave = false) {
@@ -83,6 +89,44 @@ public class SpaceshipSavefile
         }
 
         //Debug.Log(this.listConfigurations[0].listGameobjectType[0]);
+    }
+
+    public void BreakUIApart(List<ConfigurableUItile> list)
+    {
+        UItile = new List<UITileLibrary.detailType>();
+        assocDetails = new List<int>();
+        List<BlockyComponentInteractive> listicle = new List<BlockyComponentInteractive>();
+        for (int i = 0; i < list.Count; i++)  {
+            UItile.Add(list[i].myType);
+            BlockyComponentInteractive[] tmp = list[i].ToSavefileData();
+            Debug.Log(tmp.Length);
+            listicle.AddRange(tmp);
+        }
+
+        foreach (var item in listicle)
+        {
+            if (item != null)
+            {
+                int resID = -1;
+                for (int i = 0; i < listPosition.Count; i++)
+                {
+                    if (listPosition[i] == item.positionInArray)
+                    {
+                        resID = i;
+                        break;
+                    }
+                }
+                assocDetails.Add(resID);
+
+            }
+            else
+            {
+                assocDetails.Add(-1);
+            }
+            
+        }
+
+        
     }
 
     public void ClearList()

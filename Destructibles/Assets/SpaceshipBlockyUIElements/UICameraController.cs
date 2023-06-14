@@ -77,4 +77,23 @@ public class UICameraController : ConfigurableUItile
         Debug.Log("hello");
         parent.ReplaceTile(this, otherUIelement);
     }
+
+    public override BlockyComponentInteractive[] ToSavefileData()
+    {
+        BlockyComponentInteractive[] myComp = new BlockyComponentInteractive[5];
+        myComp[0] =cameraDetail;
+        return myComp;
+    }
+    public override void LoadDataFromFile(List<int> inter)
+    {
+        if (inter[0] != null)
+        {
+            this.cameraDetail = parent.spacesip.allComponents[inter[0]].GetComponent<SpaceshipCameraDetail>();
+        }
+        else
+        {
+            this.cameraDetail = null;
+        }
+        
+    }
 }

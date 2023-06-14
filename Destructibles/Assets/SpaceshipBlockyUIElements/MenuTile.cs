@@ -19,4 +19,14 @@ public class MenuTile : ConfigurableUItile
     {
         spaceship.UIGameEnd();
     }
+
+    public override BlockyComponentInteractive[] ToSavefileData()
+    {
+        BlockyComponentInteractive[] myComp = new BlockyComponentInteractive[5];
+        return myComp;
+    }
+    public override void LoadDataFromFile(List<int> inter)
+    {
+        return;
+    }
 }

@@ -88,5 +88,34 @@ public class CUITileEngines : ConfigurableUItile
         }
     }
 
+    public override BlockyComponentInteractive[] ToSavefileData()
+    {
+        BlockyComponentInteractive[] myComp = new BlockyComponentInteractive[5];
+        for (int i = 0; i < 5; i++)
+        {
+            myComp[i] = engineSlidersList[i].myEngine;
+        }
+        return myComp;
+    }
+
+    public override void LoadDataFromFile(List<int> inter)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            if (inter[i] != -1)
+            {
+                Debug.Log(inter[i]);
+                Debug.Log(this.parent.spacesip.allComponents[inter[i]]);
+                this.engineSlidersList[i].connector.referencedComponent = this.parent.spacesip.allComponents[inter[i]];
+                this.engineSlidersList[i].myEngine = this.parent.spacesip.allComponents[inter[i]].GetComponent<BlockySpaceshipEngines>();
+            }
+            else
+            {
+                this.engineSlidersList[i].connector.referencedComponent = null;
+                this.engineSlidersList[i].myEngine = null;
+            }
+            
+        }
+    }
 
 }

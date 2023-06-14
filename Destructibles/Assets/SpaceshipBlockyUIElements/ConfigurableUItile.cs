@@ -7,12 +7,8 @@ public abstract class ConfigurableUItile : MonoBehaviour
     public ConfigurableUIMain parent;
     public Vector2Int positionInArray;
     public GameObject defaultButton;
+    public UITileLibrary.detailType myType;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     public virtual void SetVariables(ConfigurableUIMain _parent, Vector2Int _positionInArray)
     {
@@ -35,7 +31,10 @@ public abstract class ConfigurableUItile : MonoBehaviour
     {
         parent.ReplaceTile(this, parent.UItile);
     }
+    public virtual void LoadFromSave()
+    {
 
+    }
 
     public void OpenList()
     {
@@ -53,4 +52,6 @@ public abstract class ConfigurableUItile : MonoBehaviour
     {
         return;
     }
+    public abstract BlockyComponentInteractive[] ToSavefileData();
+    public abstract void LoadDataFromFile(List<int> inter);
 }

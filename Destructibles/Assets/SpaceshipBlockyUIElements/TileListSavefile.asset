@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22633d30b64009e40971e87ea23fce2d, type: 3}
+  m_Name: TileListSavefile
+  m_EditorClassIdentifier: 
+  menutiles: {fileID: 136793598915792527, guid: f30b0e1f8f6ae0f4b85f9b0684968453, type: 3}
+  camera: {fileID: 7141590918071465802, guid: 225aaad598f2e1c4bbc3af9f76581244, type: 3}
+  engine: {fileID: 727874454884079562, guid: 401c4bedf15ead44ab13f72b3dce24f0, type: 3}
+  simple: {fileID: 3504320706633362387, guid: c8687c308cbc7824093c7690ec86da42, type: 3}
+  empty: {fileID: 1340839126351756431, guid: c2b68558fbe00f04cac8f5f4023fbee6, type: 3}

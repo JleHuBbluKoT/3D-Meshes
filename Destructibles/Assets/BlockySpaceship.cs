@@ -425,6 +425,7 @@ public class BlockySpaceship : MonoBehaviour
                 coreComponent.Foundation = true;
             }
         }
+        redactorUI.LoadMyTiles(savefile);
         UpdateConnections();
     }
 
@@ -435,6 +436,10 @@ public class BlockySpaceship : MonoBehaviour
         list = list.Distinct().ToList();
         Debug.Log(list.Count);
         savefile.BreakGameobjects(list, true);
+
+        List<ConfigurableUItile> tileList = redactorUI.GetMyTiles();
+        savefile.BreakUIApart(tileList);
+
     }
 
 
