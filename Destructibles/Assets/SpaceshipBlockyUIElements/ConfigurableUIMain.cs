@@ -80,12 +80,15 @@ public class ConfigurableUIMain : MonoBehaviour
 
     public void MoveTilesToOtherInstance(ConfigurableUIMain otherInstance)
     {
+        //otherInstance.WipeTable();
+        //otherInstance.FillUI();
         for (int i = 0; i < dimensions.x; i++)
         {
             for (int j = 0; j < dimensions.y; j++)
             {
                 Destroy(otherInstance.uiGrid[i, j]);
                 otherInstance.uiGrid[i, j] = this.uiGrid[i, j];
+                Debug.Log(this.uiGrid[i,j]);
                 otherInstance.uiGrid[i, j].transform.SetParent(otherInstance.transform);
                 otherInstance.uiGrid[i, j].transform.localScale = Vector3.one;
 
@@ -127,13 +130,15 @@ public class ConfigurableUIMain : MonoBehaviour
     public List<ConfigurableUItile> GetMyTiles()
     {
         List<ConfigurableUItile> list = new List<ConfigurableUItile>();
-        for (int i = 0; i < dimensions.x; i++)
+        /*       for (int i = 0; i < dimensions.x; i++)  {
+                   for (int j = 0; j < dimensions.y; j++){
+                       list.Add(uiGrid[i,j].GetComponent<ConfigurableUItile>());  }  }*/
+        for (int i = 0; i < dimensions.x * dimensions.y; i++)
         {
-            for (int j = 0; j < dimensions.y; j++)
-            {
-                list.Add(uiGrid[i,j].GetComponent<ConfigurableUItile>());
-            }
+            list.Add(uiGrid[i % dimensions.x, i / dimensions.x].GetComponent<ConfigurableUItile>());
         }
+
+
         return list;
     }
 
@@ -142,11 +147,14 @@ public class ConfigurableUIMain : MonoBehaviour
         WipeTable();
         for (int i = 0; i < savefile.UItile.Count; i++)
         {
-            Debug.Log(savefile.assocDetails.Count);
             GameObject newUIelement = Instantiate(lib.GetPrefabFromNumber(savefile.UItile[i]));
             newUIelement.transform.SetParent(this.transform);
-            Vector2Int pos = new Vector2Int(i / dimensions.x, i % dimensions.x);
+
+            Vector2Int pos = new Vector2Int(i % dimensions.x, i / dimensions.x);
+            //Vector2Int pos = new Vector2Int(i % dimensions.x, i / dimensions.y);
             this.uiGrid[pos.x, pos.y] = newUIelement;
+
+
             SetSizeAndPosition(new Vector2Int(pos.x, pos.y), newUIelement);
 
             List<int> values = new List<int>();

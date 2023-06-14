@@ -86,9 +86,13 @@ public class UICameraController : ConfigurableUItile
     }
     public override void LoadDataFromFile(List<int> inter)
     {
-        if (inter[0] != null)
+        if (inter[0] != -1)
         {
             this.cameraDetail = parent.spacesip.allComponents[inter[0]].GetComponent<SpaceshipCameraDetail>();
+            cameraFootage.texture = cameraDetail.myRenderTexture;
+            connectedCamera = cameraDetail.myCamera;
+
+
         }
         else
         {

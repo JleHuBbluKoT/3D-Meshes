@@ -38,7 +38,6 @@ public class CUITileEmptyTile : ConfigurableUItile
                     myComp[0] = conn.referencedComponent.GetComponent<BlockyComponentInteractive>();
                     break;
                 }
-                
             }
         }
         return myComp;
@@ -51,7 +50,15 @@ public class CUITileEmptyTile : ConfigurableUItile
             ConfigurableUIConnector conn;
             if (this.transform.GetChild(i).TryGetComponent(out conn))
             {
-                conn.referencedComponent = parent.spacesip.allComponents[ inter[0]];
+                if (inter[0] != -1)
+                {
+                    conn.masterTile = this;
+                    this.parent = this.transform.parent.GetComponent<ConfigurableUIMain>();
+                    conn.editorCamera = this.parent.editorCamera;
+                    conn.referencedComponent = parent.spacesip.allComponents[inter[0]];
+
+                }
+                
             }
         }
 

@@ -108,6 +108,12 @@ public class CUITileEngines : ConfigurableUItile
                 Debug.Log(this.parent.spacesip.allComponents[inter[i]]);
                 this.engineSlidersList[i].connector.referencedComponent = this.parent.spacesip.allComponents[inter[i]];
                 this.engineSlidersList[i].myEngine = this.parent.spacesip.allComponents[inter[i]].GetComponent<BlockySpaceshipEngines>();
+                this.engineSlidersList[i].connector.editorCamera = this.parent.editorCamera;
+                this.engineSlidersList[i].connector.masterTile = this;
+
+                CUIEngineSliders engineSlider = this.engineSlidersList[i].connector.gameObject.transform.parent.gameObject.GetComponent<CUIEngineSliders>();
+                this.engineSlidersList[i].myEngine.associatedSpeedometer = engineSlider;
+
             }
             else
             {

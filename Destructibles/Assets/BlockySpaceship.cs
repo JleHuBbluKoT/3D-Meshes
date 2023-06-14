@@ -5,6 +5,7 @@ using System.Linq;
 
 public class BlockySpaceship : MonoBehaviour
 {
+    public BasicGameplay gameplay;
     public bool GameStarted;
     public WaitForFixedUpdate fixedUpdate = new WaitForFixedUpdate();
     public PersistenceManager saveManager;
@@ -444,9 +445,11 @@ public class BlockySpaceship : MonoBehaviour
 
 
     public void ResetPosition() {
+        this.rb.velocity = Vector3.zero;
         this.gameObject.transform.position = new Vector3(0, 5, 0);
         this.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
         this.rb.freezeRotation = true;
+        
     }
 
     public void UIGameStart()
@@ -460,13 +463,15 @@ public class BlockySpaceship : MonoBehaviour
 
         ResetPosition();
         GameStarted = true;
+        gameplay.StartGame();
         // Generate map
     }
 
     public void UIGameEnd()
     {
+        gameplay.EndGame();
         inGameUI.GetComponent<RectTransform>().anchoredPosition = inGameUI.inactive;
-        //inGameUI.MoveTilesToOtherInstance(redactorUI);
+        inGameUI.MoveTilesToOtherInstance(redactorUI);
 
         redactorUI.GetComponent<RectTransform>().anchoredPosition = redactorUI.active;
         toolPanelUI.GetComponent<RectTransform>().anchoredPosition = new Vector3(-Mathf.Abs(toolPanelUI.GetComponent<RectTransform>().anchoredPosition.x), toolPanelUI.GetComponent<RectTransform>().anchoredPosition.y, 0);
@@ -474,9 +479,14 @@ public class BlockySpaceship : MonoBehaviour
 
         ResetPosition();
         GameStarted = false;
+        
         // Generate map
     }
 
+    public void QuitGane()
+    {
+        Application.Quit();
+    }
 }
 
 /*

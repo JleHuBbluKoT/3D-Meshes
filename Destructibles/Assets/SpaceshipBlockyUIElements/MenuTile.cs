@@ -27,6 +27,8 @@ public class MenuTile : ConfigurableUItile
     }
     public override void LoadDataFromFile(List<int> inter)
     {
+        this.parent = this.transform.parent.GetComponent<ConfigurableUIMain>();
+        this.spaceship = parent.spacesip;
         return;
     }
 }

@@ -42,7 +42,7 @@ public class BlockySpaceshipEngines : BlockyComponentInteractive
         force += Mathf.Sign(targetForce - force) * 0.002f;
 
         spaceShip.rb.AddForce(spaceShip.transform.rotation * orientation * force, ForceMode.Force);
-        Debug.Log(spaceShip.transform.rotation * orientation);
+        //Debug.Log(spaceShip.transform.rotation * orientation);
     }
 
 }

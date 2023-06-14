@@ -38,7 +38,7 @@ public class BlockySpaceshipTractorBeam : BlockyComponentInteractive
 
     public override void ComponentAction()
     {
-        Collider[] hits = Physics.OverlapCapsule(this.transform.position, this.transform.position + orientation * TractorRange, 0.7f, mask );
+        Collider[] hits = Physics.OverlapCapsule(this.transform.position, this.transform.position + orientation * TractorRange, 1.2f, mask );
         //Debug.Log(hits.Length);
         for (int i = 0; i < hits.Length; i++) {
             //Debug.Log(hits[i].CompareTag("Magnetic"));
