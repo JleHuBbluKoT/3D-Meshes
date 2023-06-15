@@ -46,7 +46,7 @@ public class BlockySpaceshipTractorBeam : BlockyComponentInteractive
                 Debug.Log(hits[i]);
                 Vector3 hitPos = hits[i].transform.position;
                 Vector3 direction = this.transform.position - hitPos;
-                hits[i].GetComponent<Rigidbody>().AddForce(direction * 15, ForceMode.Force);
+                hits[i].GetComponent<Rigidbody>().AddForce(direction * 5, ForceMode.Force);
 
                 if (Vector3.Distance(hits[i].transform.position, this.transform.position) < 2)
                 {
