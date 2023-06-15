@@ -1,2 +1,3 @@
 # Practice-Game
-This thing should do stuff to models, i mean, merge them, ughm... eh... substract them, could be even intersect. Who knows.
+https://docs.google.com/document/d/1_B4GBB-crKUIc4-RFQrv72AfPxB6Y_QBH2-Kp-BaAsM/edit?usp=sharing
+Инструкция по игре
